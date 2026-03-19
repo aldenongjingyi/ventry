@@ -3,19 +3,22 @@ import 'app_routes.dart';
 import '../modules/auth/auth_binding.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/signup_view.dart';
+import '../modules/auth/views/verify_otp_view.dart';
 import '../modules/auth/views/onboarding_view.dart';
+import '../modules/auth/views/no_organisation_view.dart';
+import '../modules/auth/views/join_invite_view.dart';
 import '../modules/shell/shell_binding.dart';
 import '../modules/shell/shell_view.dart';
-import '../modules/equipment/equipment_binding.dart';
-import '../modules/equipment/equipment_detail_view.dart';
+import '../modules/items/item_detail_view.dart';
+import '../modules/items/item_detail_controller.dart';
 import '../modules/scan/scan_binding.dart';
 import '../modules/scan/scan_view.dart';
-import '../modules/checkout/checkout_binding.dart';
-import '../modules/checkout/checkout_view.dart';
-import '../modules/checkin/checkin_binding.dart';
-import '../modules/checkin/checkin_view.dart';
+import '../modules/scan/scan_result_view.dart';
 import '../modules/projects/project_detail_view.dart';
-import '../modules/more/screens/placeholder_screen.dart';
+import '../modules/projects/project_detail_controller.dart';
+import '../modules/account/about_view.dart';
+import '../modules/account/scanner_settings_view.dart';
+import '../modules/account/upgrade_view.dart';
 
 class AppPages {
   static final pages = [
@@ -30,8 +33,18 @@ class AppPages {
       binding: AuthBinding(),
     ),
     GetPage(
+      name: AppRoutes.verifyOtp,
+      page: () => const VerifyOtpView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
       name: AppRoutes.onboarding,
       page: () => const OnboardingView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.noOrganisation,
+      page: () => const NoOrganisationView(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -40,9 +53,11 @@ class AppPages {
       binding: ShellBinding(),
     ),
     GetPage(
-      name: AppRoutes.equipmentDetail,
-      page: () => const EquipmentDetailView(),
-      binding: EquipmentBinding(),
+      name: AppRoutes.itemDetail,
+      page: () => const ItemDetailView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<ItemDetailController>(() => ItemDetailController());
+      }),
     ),
     GetPage(
       name: AppRoutes.scan,
@@ -50,34 +65,32 @@ class AppPages {
       binding: ScanBinding(),
     ),
     GetPage(
-      name: AppRoutes.checkout,
-      page: () => const CheckoutView(),
-      binding: CheckoutBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.checkin,
-      page: () => const CheckinView(),
-      binding: CheckinBinding(),
+      name: AppRoutes.scanResult,
+      page: () => const ScanResultView(),
     ),
     GetPage(
       name: AppRoutes.projectDetail,
       page: () => const ProjectDetailView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<ProjectDetailController>(() => ProjectDetailController());
+      }),
     ),
     GetPage(
-      name: AppRoutes.reports,
-      page: () => const PlaceholderScreen(title: 'Reports'),
+      name: AppRoutes.about,
+      page: () => const AboutView(),
     ),
     GetPage(
-      name: AppRoutes.printLabels,
-      page: () => const PlaceholderScreen(title: 'Print Labels'),
+      name: AppRoutes.scannerSettings,
+      page: () => const ScannerSettingsView(),
     ),
     GetPage(
-      name: AppRoutes.maintenanceLog,
-      page: () => const PlaceholderScreen(title: 'Maintenance Log'),
+      name: AppRoutes.joinInvite,
+      page: () => const JoinInviteView(),
+      binding: AuthBinding(),
     ),
     GetPage(
-      name: AppRoutes.settings,
-      page: () => const PlaceholderScreen(title: 'Settings'),
+      name: AppRoutes.upgrade,
+      page: () => const UpgradeView(),
     ),
   ];
 }

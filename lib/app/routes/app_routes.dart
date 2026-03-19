@@ -1,20 +1,20 @@
 abstract class AppRoutes {
   static const login = '/login';
   static const signup = '/signup';
+  static const verifyOtp = '/verify-otp';
   static const onboarding = '/onboarding';
+  static const noOrganisation = '/no-organisation';
   static const shell = '/shell';
-  static const dashboard = '/dashboard';
-  static const equipment = '/equipment';
-  static const equipmentDetail = '/equipment/detail';
+  static const items = '/items';
+  static const itemDetail = '/items/:id';
   static const scan = '/scan';
-  static const checkout = '/checkout';
-  static const checkin = '/checkin';
+  static const scanResult = '/scan/result';
   static const projects = '/projects';
-  static const projectDetail = '/projects/detail';
-  static const team = '/team';
-  static const more = '/more';
-  static const reports = '/more/reports';
-  static const printLabels = '/more/print-labels';
-  static const maintenanceLog = '/more/maintenance-log';
-  static const settings = '/more/settings';
+  static const projectDetail = '/projects/:id';
+  static const members = '/members';
+  static const account = '/account';
+  static const about = '/account/about';
+  static const scannerSettings = '/account/scanner-settings';
+  static const joinInvite = '/join/:code';
+  static const upgrade = '/upgrade';
 }

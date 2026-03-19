@@ -4,8 +4,13 @@ import '../theme/app_colors.dart';
 
 class ShimmerList extends StatelessWidget {
   final int itemCount;
+  final EdgeInsetsGeometry padding;
 
-  const ShimmerList({super.key, this.itemCount = 5});
+  const ShimmerList({
+    super.key,
+    this.itemCount = 5,
+    this.padding = const EdgeInsets.symmetric(horizontal: 20),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,11 +18,11 @@ class ShimmerList extends StatelessWidget {
       baseColor: const Color(0xFF1A1A1A),
       highlightColor: const Color(0xFF2A2A2A),
       child: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        padding: padding,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: itemCount,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (_, __) => Container(
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        itemBuilder: (_, _) => Container(
           height: 72,
           decoration: BoxDecoration(
             color: AppColors.surface,

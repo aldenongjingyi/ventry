@@ -1,6 +1,6 @@
-# trackgear_pro
+# Ventry
 
-A new Flutter project.
+Equipment tracking for field teams, built with Flutter and Supabase.
 
 ## Getting Started
 

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.trackgearpro" "\0"
-            VALUE "FileDescription", "trackgear_pro" "\0"
+            VALUE "CompanyName", "Ventry" "\0"
+            VALUE "FileDescription", "Ventry" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "trackgear_pro" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.trackgearpro. All rights reserved." "\0"
-            VALUE "OriginalFilename", "trackgear_pro.exe" "\0"
-            VALUE "ProductName", "trackgear_pro" "\0"
+            VALUE "InternalName", "ventry" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Ventry. All rights reserved." "\0"
+            VALUE "OriginalFilename", "ventry.exe" "\0"
+            VALUE "ProductName", "Ventry" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import '../data/services/supabase_service.dart';
-import '../data/services/scanner_service.dart';
+import '../modules/auth/auth_controller.dart';
 
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(SupabaseService(), permanent: true);
-    Get.put(ScannerService(), permanent: true);
+    if (!Get.isRegistered<SupabaseService>()) {
+      Get.put(SupabaseService(), permanent: true);
+    }
+    Get.put(AuthController(), permanent: true);
   }
 }

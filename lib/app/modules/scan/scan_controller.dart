@@ -1,78 +1,53 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
-import '../../data/models/equipment_model.dart';
-import '../../data/services/scanner_service.dart';
-import '../../routes/app_routes.dart';
+import '../../data/models/item_model.dart';
+import '../../data/repositories/item_repository.dart';
+import '../../theme/app_colors.dart';
 
 class ScanController extends GetxController {
-  final _scannerService = ScannerService.to;
-
-  late final MobileScannerController cameraController;
-
+  final _repo = ItemRepository();
+  final scannedItem = Rxn<ItemModel>();
   final isProcessing = false.obs;
-  final lastScannedBarcode = ''.obs;
-  final scanResult = Rxn<EquipmentModel>();
-  final errorMessage = ''.obs;
-
-  // Modes: 'lookup', 'checkout-add', 'checkin-add'
-  String get mode => Get.arguments?['mode'] as String? ?? 'lookup';
+  final lookupFailed = false.obs;
+  final scannerMode = 'smart'.obs; // quick, smart, manual
 
   @override
   void onInit() {
     super.onInit();
-    cameraController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-    );
+    ever(lookupFailed, (failed) {
+      if (failed) {
+        Get.snackbar(
+          'Lookup failed',
+          'Check your connection and try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.surfaceElevated,
+          colorText: AppColors.error,
+          mainButton: TextButton(
+            onPressed: () => Get.closeCurrentSnackbar(),
+            child: Text('Dismiss',
+                style: TextStyle(color: AppColors.textSecondary)),
+          ),
+        );
+      }
+    });
   }
 
-  Future<void> onBarcodeDetected(BarcodeCapture capture) async {
+  Future<void> onBarcodeScanned(String code) async {
     if (isProcessing.value) return;
-
-    final barcode = capture.barcodes.firstOrNull?.rawValue;
-    if (barcode == null || barcode == lastScannedBarcode.value) return;
-
     isProcessing.value = true;
-    lastScannedBarcode.value = barcode;
-    errorMessage.value = '';
-
+    lookupFailed.value = false;
     try {
-      final equipment = await _scannerService.lookupBarcode(barcode);
-
-      if (equipment != null) {
-        switch (mode) {
-          case 'lookup':
-            scanResult.value = equipment;
-            cameraController.stop();
-            Get.toNamed(
-              AppRoutes.equipmentDetail,
-              arguments: {'id': equipment.id},
-            );
-            break;
-          case 'checkout-add':
-          case 'checkin-add':
-            Get.back(result: equipment);
-            break;
-        }
-      } else {
-        errorMessage.value = 'No equipment found for barcode: $barcode';
-        await Future.delayed(const Duration(seconds: 2));
-        errorMessage.value = '';
-        lastScannedBarcode.value = '';
-      }
-    } catch (e) {
-      errorMessage.value = 'Scan failed. Try again.';
-      await Future.delayed(const Duration(seconds: 2));
-      errorMessage.value = '';
-      lastScannedBarcode.value = '';
+      final item = await _repo.getByQrCode(code);
+      scannedItem.value = item;
+    } catch (_) {
+      scannedItem.value = null;
+      lookupFailed.value = true;
     } finally {
       isProcessing.value = false;
     }
   }
 
-  @override
-  void onClose() {
-    cameraController.dispose();
-    super.onClose();
+  void clearScannedItem() {
+    scannedItem.value = null;
   }
 }

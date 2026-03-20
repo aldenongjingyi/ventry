@@ -20,12 +20,12 @@ class ScanController extends GetxController {
           'Lookup failed',
           'Check your connection and try again.',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.surfaceElevated,
-          colorText: AppColors.error,
+          backgroundColor: AppColors.surface3,
+          colorText: AppColors.reText,
           mainButton: TextButton(
             onPressed: () => Get.closeCurrentSnackbar(),
             child: Text('Dismiss',
-                style: TextStyle(color: AppColors.textSecondary)),
+                style: TextStyle(color: AppColors.t2)),
           ),
         );
       }

@@ -6,23 +6,23 @@
 -- DROP OLD SCHEMA (if migrating from previous versions)
 -- ============================================================
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-DROP FUNCTION IF EXISTS public.handle_new_user();
-DROP FUNCTION IF EXISTS public.perform_checkout(uuid[], uuid, uuid, text);
-DROP FUNCTION IF EXISTS public.perform_checkin(uuid[], jsonb);
-DROP FUNCTION IF EXISTS public.perform_onboarding(text, text);
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.perform_checkout(uuid[], uuid, uuid, text) CASCADE;
+DROP FUNCTION IF EXISTS public.perform_checkin(uuid[], jsonb) CASCADE;
+DROP FUNCTION IF EXISTS public.perform_onboarding(text, text) CASCADE;
 DROP FUNCTION IF EXISTS public.get_my_company_id() CASCADE;
-DROP FUNCTION IF EXISTS public.get_active_org_id();
-DROP FUNCTION IF EXISTS public.get_user_role(uuid);
-DROP FUNCTION IF EXISTS public.is_org_member(uuid);
-DROP FUNCTION IF EXISTS public.is_org_admin(uuid);
-DROP FUNCTION IF EXISTS public.next_item_number(uuid);
-DROP FUNCTION IF EXISTS public.perform_relocation(uuid, text, uuid);
-DROP FUNCTION IF EXISTS public.complete_project(uuid, text);
-DROP FUNCTION IF EXISTS public.accept_invite(text);
-DROP FUNCTION IF EXISTS public.accept_invite(text, text);
-DROP FUNCTION IF EXISTS public.create_invite(uuid, int, int);
-DROP FUNCTION IF EXISTS public.check_org_limit(uuid, text);
-DROP FUNCTION IF EXISTS public.get_org_usage(uuid);
+DROP FUNCTION IF EXISTS public.get_active_org_id() CASCADE;
+DROP FUNCTION IF EXISTS public.get_user_role(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.is_org_member(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.is_org_admin(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.next_item_number(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.perform_relocation(uuid, text, uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.complete_project(uuid, text) CASCADE;
+DROP FUNCTION IF EXISTS public.accept_invite(text) CASCADE;
+DROP FUNCTION IF EXISTS public.accept_invite(text, text) CASCADE;
+DROP FUNCTION IF EXISTS public.create_invite(uuid, int, int) CASCADE;
+DROP FUNCTION IF EXISTS public.check_org_limit(uuid, text) CASCADE;
+DROP FUNCTION IF EXISTS public.get_org_usage(uuid) CASCADE;
 
 DROP TABLE IF EXISTS public.activity_log CASCADE;
 DROP TABLE IF EXISTS public.org_invites CASCADE;

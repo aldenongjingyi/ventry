@@ -6,120 +6,85 @@ class AppTextStyles {
 
   static const String _fontFamily = 'Inter';
 
-  // ── Display ──
-  static const TextStyle displayLarge = TextStyle(
+  // ── Display number — 32px/w700 — stat card hero numbers ──
+  static const TextStyle displayNumber = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 32,
     fontWeight: FontWeight.w700,
-    letterSpacing: -0.5,
-    color: AppColors.textPrimary,
+    color: AppColors.t1,
   );
 
-  // ── Headings ──
-  static const TextStyle h1 = TextStyle(
+  // ── Screen title — 26px/w700 — tab headers ──
+  static const TextStyle screenTitle = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: FontWeight.w700,
-    letterSpacing: -0.5,
-    color: AppColors.textPrimary,
+    color: AppColors.t1,
   );
 
-  static const TextStyle h2 = TextStyle(
+  // ── Card title — 20px/w600 — project/item names in detail screens ──
+  static const TextStyle cardTitle = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 22,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.3,
-    color: AppColors.textPrimary,
-  );
-
-  static const TextStyle h3 = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
+    color: AppColors.t1,
   );
 
-  // ── Body ──
-  static const TextStyle subtitle = TextStyle(
+  // ── Item name — 17px/w600 — item names in list rows ──
+  static const TextStyle itemName = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
+    color: AppColors.t2,
   );
 
+  // ── Body — 16px/w400 — descriptions, notes ──
   static const TextStyle body = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimary,
+    color: AppColors.t2,
   );
 
-  static const TextStyle bodyMedium = TextStyle(
+  // ── Secondary body — 15px/w400 — secondary descriptions ──
+  static const TextStyle bodySecondary = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textPrimary,
+    fontSize: 15,
+    fontWeight: FontWeight.w400,
+    color: AppColors.t3,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  // ── Caption — 13px/w400 — timestamps, item numbers ──
+  static const TextStyle caption = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
+    color: AppColors.t3,
   );
 
-  // ── Caption ──
-  static const TextStyle caption = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
-  );
-
-  static const TextStyle captionMedium = TextStyle(
+  // ── Micro label — 12px/w500 — tags, badges, filter chips ──
+  static const TextStyle micro = TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
+    color: AppColors.t3,
   );
 
-  // ── Button ──
+  // ── Section label — 11px/w500 — section headers (uppercase, 0.7 spacing) ──
+  static const TextStyle sectionLabel = TextStyle(
+    fontFamily: _fontFamily,
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.7,
+    color: AppColors.t4,
+  );
+
+  // ── Button — 15px/w500 ──
   static const TextStyle button = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
     color: AppColors.textOnPrimary,
   );
 
-  static const TextStyle buttonSmall = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textOnPrimary,
-  );
-
-  // ── Overline ──
-  static const TextStyle overline = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 10,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.5,
-    color: AppColors.textTertiary,
-  );
-
-  // ── Number / Stats ──
-  static const TextStyle statNumber = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 28,
-    fontWeight: FontWeight.w700,
-    color: AppColors.primary,
-  );
-
-  static const TextStyle itemNumber = TextStyle(
-    fontFamily: _fontFamily,
-    fontSize: 12,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.5,
-    color: AppColors.primary,
-  );
 }

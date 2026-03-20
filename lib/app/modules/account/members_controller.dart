@@ -49,14 +49,14 @@ class MembersController extends GetxController {
       await loadMembers();
       Get.snackbar('Success', 'Role updated to $newRole',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to update role',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }
@@ -67,14 +67,14 @@ class MembersController extends GetxController {
       await loadMembers();
       Get.snackbar('Removed', '${member.fullName} has been removed',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to remove member',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }

@@ -22,28 +22,41 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 32),
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: AppColors.textTertiary),
+            // Icon container — 44x44, surface3, border2, 12px radius
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surface3,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border2, width: 0.5),
+              ),
+              child: Icon(icon, size: 20, color: AppColors.t5),
+            ),
             const SizedBox(height: 16),
+            // Heading — 15px/w600
             Text(
               title,
-              style: AppTextStyles.subtitle.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              style: AppTextStyles.itemName.copyWith(color: AppColors.t1),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
+            // Subtext — 13px/w400, line height 1.5
             Text(
               subtitle,
-              style: AppTextStyles.caption,
+              style: AppTextStyles.bodySecondary.copyWith(
+                color: AppColors.t4,
+                height: 1.5,
+              ),
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               SizedBox(
                 width: 200,
                 child: GoldButton(

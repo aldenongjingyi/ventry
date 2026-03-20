@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'dart:ui';
-
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -160,86 +158,75 @@ class AuthController extends GetxController {
       backgroundColor: Colors.transparent,
       isDismissible: false,
       enableDrag: false,
-      builder: (ctx) => ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-                24, 24, 24, MediaQuery.of(ctx).padding.bottom + 24),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF1A1A1A), Color(0xFF121212)],
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              border: Border(
-                top: BorderSide(color: Color(0x20FFFFFF), width: 0.5),
-                left: BorderSide(color: Color(0x20FFFFFF), width: 0.5),
-                right: BorderSide(color: Color(0x20FFFFFF), width: 0.5),
+      builder: (ctx) => Container(
+        padding: EdgeInsets.fromLTRB(
+            16, 16, 16, MediaQuery.of(ctx).padding.bottom + 16),
+        decoration: const BoxDecoration(
+          color: AppColors.surface1,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          border: Border(
+            top: BorderSide(color: AppColors.border1, width: 0.5),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border2,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40, height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.glassBorder,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text('Select Organisation', style: AppTextStyles.h3),
-                const SizedBox(height: 8),
-                Text('Choose which organisation to open',
-                    style: AppTextStyles.bodySmall),
-                const SizedBox(height: 20),
-                ...memberships.map((m) {
-                  final orgData = m['organisations'] as Map<String, dynamic>;
-                  final orgName = orgData['name'] as String;
-                  final plan = orgData['plan'] as String? ?? 'free';
-                  final role = m['role'] as String;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: GlassCard(
-                      child: ListTile(
-                        leading: Container(
-                          width: 40, height: 40,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.goldGradient,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              orgName.isNotEmpty ? orgName[0].toUpperCase() : '?',
-                              style: AppTextStyles.subtitle.copyWith(
-                                  color: AppColors.textOnPrimary),
-                            ),
-                          ),
+            const SizedBox(height: 20),
+            Text('Select Organisation', style: AppTextStyles.cardTitle),
+            const SizedBox(height: 8),
+            Text('Choose which organisation to open',
+                style: AppTextStyles.bodySecondary),
+            const SizedBox(height: 20),
+            ...memberships.map((m) {
+              final orgData = m['organisations'] as Map<String, dynamic>;
+              final orgName = orgData['name'] as String;
+              final plan = orgData['plan'] as String? ?? 'free';
+              final role = m['role'] as String;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: GlassCard(
+                  child: ListTile(
+                    leading: Container(
+                      width: 40, height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.accBg,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.accBorder, width: 0.5),
+                      ),
+                      child: Center(
+                        child: Text(
+                          orgName.isNotEmpty ? orgName[0].toUpperCase() : '?',
+                          style: AppTextStyles.itemName.copyWith(
+                              color: AppColors.textOnPrimary),
                         ),
-                        title: Text(orgName, style: AppTextStyles.bodyMedium),
-                        subtitle: Text(
-                          '${role[0].toUpperCase()}${role.substring(1)} \u2022 ${plan[0].toUpperCase()}${plan.substring(1)}',
-                          style: AppTextStyles.caption,
-                        ),
-                        onTap: () async {
-                          Navigator.of(ctx).pop();
-                          await _selectOrg(m);
-                          // Reload shell data
-                          _supabase.onOrgSwitched?.call();
-                        },
                       ),
                     ),
-                  );
-                }),
-              ],
-            ),
-          ),
+                    title: Text(orgName, style: AppTextStyles.body),
+                    subtitle: Text(
+                      '${role[0].toUpperCase()}${role.substring(1)} \u2022 ${plan[0].toUpperCase()}${plan.substring(1)}',
+                      style: AppTextStyles.caption,
+                    ),
+                    onTap: () async {
+                      Navigator.of(ctx).pop();
+                      await _selectOrg(m);
+                      // Reload shell data
+                      _supabase.onOrgSwitched?.call();
+                    },
+                  ),
+                ),
+              );
+            }),
+          ],
         ),
       ),
     );
@@ -280,154 +267,142 @@ class AuthController extends GetxController {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-                24, 24, 24, MediaQuery.of(ctx).padding.bottom + 24),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF1A1A1A), Color(0xFF121212)],
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              border: Border(
-                top: BorderSide(color: Color(0x20FFFFFF), width: 0.5),
-                left: BorderSide(color: Color(0x20FFFFFF), width: 0.5),
-                right: BorderSide(color: Color(0x20FFFFFF), width: 0.5),
+      builder: (ctx) => Container(
+        padding: EdgeInsets.fromLTRB(
+            16, 16, 16, MediaQuery.of(ctx).padding.bottom + 16),
+        decoration: const BoxDecoration(
+          color: AppColors.surface1,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          border: Border(
+            top: BorderSide(color: AppColors.border1, width: 0.5),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border2,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40, height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.glassBorder,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text('Join Organisation', style: AppTextStyles.h3),
-                const SizedBox(height: 8),
-                Text(
-                  'You\'ve been invited to join an organisation. Would you like to accept?',
-                  style: AppTextStyles.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                GlassCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.vpn_key_rounded, color: AppColors.primary, size: 20),
-                        const SizedBox(width: 12),
-                        Text('Invite code: $code',
-                            style: AppTextStyles.bodyMedium),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
+            const SizedBox(height: 20),
+            Text('Join Organisation', style: AppTextStyles.cardTitle),
+            const SizedBox(height: 8),
+            Text(
+              'You\'ve been invited to join an organisation. Would you like to accept?',
+              style: AppTextStyles.bodySecondary,
+            ),
+            const SizedBox(height: 8),
+            GlassCard(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
                   children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => Navigator.of(ctx).pop(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.glass,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.glassBorder, width: 0.5),
-                          ),
-                          child: Center(
-                            child: Text('Cancel', style: AppTextStyles.bodyMedium),
-                          ),
+                    Icon(Icons.vpn_key_rounded, color: AppColors.acc, size: 20),
+                    const SizedBox(width: 12),
+                    Text('Invite code: $code',
+                        style: AppTextStyles.body),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(ctx).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface2,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.border2, width: 0.5),
+                      ),
+                      child: Center(
+                        child: Text('Cancel', style: AppTextStyles.button.copyWith(color: AppColors.t2)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Obx(() => GestureDetector(
+                    onTap: isJoining.value ? null : () async {
+                      isJoining.value = true;
+                      try {
+                        final fullName = _supabase.currentUser?.userMetadata?['full_name'] ??
+                            _supabase.currentUser?.email ?? 'User';
+                        await _supabase.client.rpc('accept_invite', params: {
+                          'p_code': code,
+                          'p_full_name': fullName,
+                        });
+
+                        // Fetch newly joined org
+                        final membership = await _supabase.client
+                            .from('org_memberships')
+                            .select('organisation_id, role, organisations!inner(name, plan)')
+                            .eq('user_id', _supabase.userId!)
+                            .order('created_at', ascending: false)
+                            .limit(1)
+                            .single();
+
+                        final orgId = membership['organisation_id'] as String;
+                        final role = membership['role'] as String;
+                        final orgData = membership['organisations'] as Map<String, dynamic>;
+                        final orgName = orgData['name'] as String;
+                        final plan = orgData['plan'] as String? ?? 'free';
+
+                        await _supabase.switchOrg(orgId, orgName, role, plan);
+
+                        if (ctx.mounted) Navigator.of(ctx).pop();
+                        Get.snackbar('Joined', 'You joined $orgName',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: AppColors.surface3,
+                          colorText: AppColors.t1,
+                        );
+                      } catch (e) {
+                        final msg = e is PostgrestException
+                            ? e.message
+                            : 'This invite link is invalid or has expired';
+                        Get.snackbar('Error', msg,
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: AppColors.surface3,
+                          colorText: AppColors.reText,
+                        );
+                        if (ctx.mounted) Navigator.of(ctx).pop();
+                      } finally {
+                        isJoining.value = false;
+                      }
+                    },
+                    child: Material(
+                      color: AppColors.acc,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        child: Center(
+                          child: isJoining.value
+                              ? const SizedBox(
+                                  height: 20, width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text('Join', style: AppTextStyles.button),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Obx(() => GestureDetector(
-                        onTap: isJoining.value ? null : () async {
-                          isJoining.value = true;
-                          try {
-                            final fullName = _supabase.currentUser?.userMetadata?['full_name'] ??
-                                _supabase.currentUser?.email ?? 'User';
-                            await _supabase.client.rpc('accept_invite', params: {
-                              'p_code': code,
-                              'p_full_name': fullName,
-                            });
-
-                            // Fetch newly joined org
-                            final membership = await _supabase.client
-                                .from('org_memberships')
-                                .select('organisation_id, role, organisations!inner(name, plan)')
-                                .eq('user_id', _supabase.userId!)
-                                .order('created_at', ascending: false)
-                                .limit(1)
-                                .single();
-
-                            final orgId = membership['organisation_id'] as String;
-                            final role = membership['role'] as String;
-                            final orgData = membership['organisations'] as Map<String, dynamic>;
-                            final orgName = orgData['name'] as String;
-                            final plan = orgData['plan'] as String? ?? 'free';
-
-                            await _supabase.switchOrg(orgId, orgName, role, plan);
-
-                            if (ctx.mounted) Navigator.of(ctx).pop();
-                            Get.snackbar('Joined', 'You joined $orgName',
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: AppColors.surfaceElevated,
-                              colorText: AppColors.textPrimary,
-                            );
-                          } catch (e) {
-                            final msg = e is PostgrestException
-                                ? e.message
-                                : 'This invite link is invalid or has expired';
-                            Get.snackbar('Error', msg,
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: AppColors.surfaceElevated,
-                              colorText: AppColors.error,
-                            );
-                            if (ctx.mounted) Navigator.of(ctx).pop();
-                          } finally {
-                            isJoining.value = false;
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: AppColors.goldGradient,
-                          ),
-                          child: Center(
-                            child: isJoining.value
-                                ? const SizedBox(
-                                    height: 20, width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.textOnPrimary,
-                                    ),
-                                  )
-                                : Text('Join', style: AppTextStyles.button),
-                          ),
-                        ),
-                      )),
-                    ),
-                  ],
+                  )),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -588,10 +563,10 @@ class AuthController extends GetxController {
         'p_full_name': fullName,
       });
 
-      // Dev flavor: auto-upgrade to pro for testing
+      // Dev flavor: auto-upgrade to pro for testing (fire-and-forget)
       final plan = FlavorConfig.isDev ? 'pro' : 'free';
       if (FlavorConfig.isDev) {
-        await _supabase.client
+        _supabase.client
             .from('organisations')
             .update({'plan': 'pro'})
             .eq('id', orgId);
@@ -603,12 +578,15 @@ class AuthController extends GetxController {
         'admin',
         plan,
       );
-      await _supabase.loadOrgUsage();
 
+      // Navigate first, load usage in background
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasCompletedOnboarding', true);
 
       Get.offAllNamed(AppRoutes.shell);
+
+      // Non-critical — load after navigation
+      _supabase.loadOrgUsage();
     } on PostgrestException catch (e) {
       errorMessage.value = e.message;
     } catch (e) {

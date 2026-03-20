@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/glass_card.dart';
-import '../../widgets/glass_background.dart';
 
 class ScannerSettingsView extends StatefulWidget {
   const ScannerSettingsView({super.key});
@@ -39,83 +38,80 @@ class _ScannerSettingsViewState extends State<ScannerSettingsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: GlassBackground(
-        style: GlassBackgroundStyle.minimal,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                onPressed: () => Get.back(),
-              ),
-              title: Text('Scanner Settings', style: AppTextStyles.h3),
-              centerTitle: false,
+      backgroundColor: AppColors.canvas,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: AppColors.canvas,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.t1),
+              onPressed: () => Get.back(),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    Text('Feedback', style: AppTextStyles.captionMedium),
-                    const SizedBox(height: 12),
-                    Obx(() => GlassCard(
-                      child: SwitchListTile(
-                        title: Text('Sound', style: AppTextStyles.bodyMedium),
-                        subtitle: Text('Play a beep on successful scan',
-                            style: AppTextStyles.caption),
-                        value: soundEnabled.value,
-                        onChanged: (v) {
-                          soundEnabled.value = v;
-                          _saveBool('scanner_sound', v);
-                        },
-                        activeThumbColor: AppColors.primary,
-                        inactiveTrackColor: AppColors.glass,
-                      ),
-                    )),
-                    const SizedBox(height: 10),
-                    Obx(() => GlassCard(
-                      child: SwitchListTile(
-                        title: Text('Vibration', style: AppTextStyles.bodyMedium),
-                        subtitle: Text('Vibrate on successful scan',
-                            style: AppTextStyles.caption),
-                        value: vibrationEnabled.value,
-                        onChanged: (v) {
-                          vibrationEnabled.value = v;
-                          _saveBool('scanner_vibration', v);
-                        },
-                        activeThumbColor: AppColors.primary,
-                        inactiveTrackColor: AppColors.glass,
-                      ),
-                    )),
-                    const SizedBox(height: 24),
-                    Text('Behaviour', style: AppTextStyles.captionMedium),
-                    const SizedBox(height: 12),
-                    Obx(() => GlassCard(
-                      child: SwitchListTile(
-                        title: Text('Auto Mode', style: AppTextStyles.bodyMedium),
-                        subtitle: Text(
-                            'Automatically process scans without confirmation',
-                            style: AppTextStyles.caption),
-                        value: autoMode.value,
-                        onChanged: (v) {
-                          autoMode.value = v;
-                          _saveBool('scanner_auto_mode', v);
-                        },
-                        activeThumbColor: AppColors.primary,
-                        inactiveTrackColor: AppColors.glass,
-                      ),
-                    )),
-                  ],
-                ),
+            title: Text('Scanner Settings', style: AppTextStyles.cardTitle),
+            centerTitle: false,
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  Text('FEEDBACK', style: AppTextStyles.sectionLabel),
+                  const SizedBox(height: 12),
+                  Obx(() => GlassCard(
+                    child: SwitchListTile(
+                      title: Text('Sound', style: AppTextStyles.body),
+                      subtitle: Text('Play a beep on successful scan',
+                          style: AppTextStyles.caption),
+                      value: soundEnabled.value,
+                      onChanged: (v) {
+                        soundEnabled.value = v;
+                        _saveBool('scanner_sound', v);
+                      },
+                      activeThumbColor: AppColors.acc,
+                      inactiveTrackColor: AppColors.surface3,
+                    ),
+                  )),
+                  const SizedBox(height: 10),
+                  Obx(() => GlassCard(
+                    child: SwitchListTile(
+                      title: Text('Vibration', style: AppTextStyles.body),
+                      subtitle: Text('Vibrate on successful scan',
+                          style: AppTextStyles.caption),
+                      value: vibrationEnabled.value,
+                      onChanged: (v) {
+                        vibrationEnabled.value = v;
+                        _saveBool('scanner_vibration', v);
+                      },
+                      activeThumbColor: AppColors.acc,
+                      inactiveTrackColor: AppColors.surface3,
+                    ),
+                  )),
+                  const SizedBox(height: 24),
+                  Text('BEHAVIOUR', style: AppTextStyles.sectionLabel),
+                  const SizedBox(height: 12),
+                  Obx(() => GlassCard(
+                    child: SwitchListTile(
+                      title: Text('Auto Mode', style: AppTextStyles.body),
+                      subtitle: Text(
+                          'Automatically process scans without confirmation',
+                          style: AppTextStyles.caption),
+                      value: autoMode.value,
+                      onChanged: (v) {
+                        autoMode.value = v;
+                        _saveBool('scanner_auto_mode', v);
+                      },
+                      activeThumbColor: AppColors.acc,
+                      inactiveTrackColor: AppColors.surface3,
+                    ),
+                  )),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

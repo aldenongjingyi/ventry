@@ -84,8 +84,8 @@ class ItemsController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Failed to create item',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
       return null;
     }

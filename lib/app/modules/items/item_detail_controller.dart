@@ -44,14 +44,14 @@ class ItemDetailController extends GetxController {
       Get.back();
       Get.snackbar('Deleted', 'Item has been removed',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete item',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }

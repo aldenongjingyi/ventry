@@ -49,10 +49,10 @@ class ScanView extends GetView<ScanController> {
             right: 0,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   'Scan QR Code',
-                  style: AppTextStyles.h2.copyWith(color: Colors.white),
+                  style: AppTextStyles.screenTitle.copyWith(color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -70,7 +70,7 @@ class ScanView extends GetView<ScanController> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const CircularProgressIndicator(
-                    color: AppColors.primary,
+                    color: AppColors.acc,
                     strokeWidth: 3,
                   ),
                 ),
@@ -87,10 +87,9 @@ class ScanView extends GetView<ScanController> {
               if (item == null) return const SizedBox.shrink();
               return SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   child: GlassCard(
-                    blur: 20,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,68 +99,52 @@ class ScanView extends GetView<ScanController> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryMuted,
+                                color: AppColors.accBg,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text('#${item.itemNumber}', style: AppTextStyles.itemNumber),
+                              child: Text(
+                                '#${item.itemNumber}',
+                                style: AppTextStyles.micro.copyWith(color: AppColors.accText),
+                              ),
                             ),
                             const Spacer(),
                             IconButton(
                               onPressed: controller.clearScannedItem,
-                              icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 20),
+                              icon: const Icon(Icons.close, color: AppColors.t3, size: 20),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(item.name, style: AppTextStyles.subtitle.copyWith(color: Colors.white)),
+                        Text(item.name, style: AppTextStyles.itemName.copyWith(color: Colors.white)),
                         const SizedBox(height: 4),
                         Text(item.displayStatus, style: AppTextStyles.caption),
                         const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              gradient: AppColors.goldGradient,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              child: InkWell(
-                                onTap: () => showRelocateSheet(
-                                  context,
-                                  itemId: item.id,
-                                  itemName: item.name,
-                                  itemNumber: item.itemNumber,
-                                  onComplete: () {
-                                    controller.clearScannedItem();
-                                  },
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 14),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.swap_horiz,
-                                          color: AppColors.textOnPrimary, size: 20),
-                                      SizedBox(width: 8),
-                                      Text('Relocate',
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textOnPrimary,
-                                          )),
-                                    ],
-                                  ),
+                          child: Material(
+                            color: AppColors.acc,
+                            borderRadius: BorderRadius.circular(10),
+                            child: InkWell(
+                              onTap: () => showRelocateSheet(
+                                context,
+                                itemId: item.id,
+                                itemName: item.name,
+                                itemNumber: item.itemNumber,
+                                onComplete: () {
+                                  controller.clearScannedItem();
+                                },
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.swap_horiz,
+                                        color: AppColors.textOnPrimary, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text('Relocate', style: AppTextStyles.button),
+                                  ],
                                 ),
                               ),
                             ),

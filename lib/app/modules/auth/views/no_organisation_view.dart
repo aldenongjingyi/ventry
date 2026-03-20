@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../widgets/glass_card.dart';
-import '../../../widgets/glass_background.dart';
 import '../../../widgets/gold_button.dart';
 import '../auth_controller.dart';
 
@@ -13,82 +12,79 @@ class NoOrganisationView extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: GlassBackground(
-        style: GlassBackgroundStyle.minimal,
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 64),
-                Icon(
-                  Icons.business_outlined,
-                  size: 56,
-                  color: AppColors.textTertiary,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'No Organisation',
-                  style: AppTextStyles.h2,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "You're not part of any organisation.\nCreate one or enter an invite code to join.",
-                  style: AppTextStyles.body
-                      .copyWith(color: AppColors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
+      backgroundColor: AppColors.canvas,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 64),
+              const Icon(
+                Icons.business_outlined,
+                size: 56,
+                color: AppColors.t4,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'No Organisation',
+                style: AppTextStyles.screenTitle,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "You're not part of any organisation.\nCreate one or enter an invite code to join.",
+                style: AppTextStyles.body
+                    .copyWith(color: AppColors.t3),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
 
-                // Mode toggle
-                Obx(() => Row(
-                  children: [
-                    Expanded(
-                      child: _ModeTab(
-                        label: 'Create',
-                        icon: Icons.add_business_rounded,
-                        isActive: controller.onboardingMode.value == 'create',
-                        onTap: () {
-                          controller.onboardingMode.value = 'create';
-                          controller.errorMessage.value = '';
-                        },
-                      ),
+              // Mode toggle
+              Obx(() => Row(
+                children: [
+                  Expanded(
+                    child: _ModeTab(
+                      label: 'Create',
+                      icon: Icons.add_business_rounded,
+                      isActive: controller.onboardingMode.value == 'create',
+                      onTap: () {
+                        controller.onboardingMode.value = 'create';
+                        controller.errorMessage.value = '';
+                      },
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _ModeTab(
-                        label: 'Join',
-                        icon: Icons.group_add_rounded,
-                        isActive: controller.onboardingMode.value == 'join',
-                        onTap: () {
-                          controller.onboardingMode.value = 'join';
-                          controller.errorMessage.value = '';
-                        },
-                      ),
-                    ),
-                  ],
-                )),
-
-                const SizedBox(height: 24),
-
-                Obx(() => controller.onboardingMode.value == 'create'
-                    ? _buildCreateForm()
-                    : _buildJoinForm()),
-
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: controller.logout,
-                  child: Text(
-                    'Sign out',
-                    style: AppTextStyles.bodyMedium
-                        .copyWith(color: AppColors.textSecondary),
                   ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _ModeTab(
+                      label: 'Join',
+                      icon: Icons.group_add_rounded,
+                      isActive: controller.onboardingMode.value == 'join',
+                      onTap: () {
+                        controller.onboardingMode.value = 'join';
+                        controller.errorMessage.value = '';
+                      },
+                    ),
+                  ),
+                ],
+              )),
+
+              const SizedBox(height: 24),
+
+              Obx(() => controller.onboardingMode.value == 'create'
+                  ? _buildCreateForm()
+                  : _buildJoinForm()),
+
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: controller.logout,
+                child: Text(
+                  'Sign out',
+                  style: AppTextStyles.body
+                      .copyWith(color: AppColors.t3),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -101,7 +97,7 @@ class NoOrganisationView extends GetView<AuthController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('New Organisation', style: AppTextStyles.subtitle),
+          Text('New Organisation', style: AppTextStyles.itemName),
           const SizedBox(height: 4),
           Text('Start on the free plan \u2014 upgrade anytime',
               style: AppTextStyles.caption),
@@ -137,7 +133,7 @@ class NoOrganisationView extends GetView<AuthController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Join Organisation', style: AppTextStyles.subtitle),
+          Text('Join Organisation', style: AppTextStyles.itemName),
           const SizedBox(height: 4),
           Text('Enter the invite code from your team admin',
               style: AppTextStyles.caption),
@@ -173,7 +169,7 @@ class NoOrganisationView extends GetView<AuthController> {
             padding: const EdgeInsets.only(top: 12),
             child: Text(
               controller.errorMessage.value,
-              style: AppTextStyles.caption.copyWith(color: AppColors.error),
+              style: AppTextStyles.caption.copyWith(color: AppColors.reText),
               textAlign: TextAlign.center,
             ),
           )
@@ -202,21 +198,12 @@ class _ModeTab extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primaryMuted : AppColors.glass,
+          color: isActive ? AppColors.accBg : AppColors.surface2,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isActive ? AppColors.primary : AppColors.glassBorder,
-            width: isActive ? 1.5 : 0.5,
+            color: isActive ? AppColors.acc : AppColors.border1,
+            width: isActive ? 1 : 0.5,
           ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.15),
-                    blurRadius: 12,
-                    spreadRadius: -2,
-                  ),
-                ]
-              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -224,13 +211,13 @@ class _ModeTab extends StatelessWidget {
             Icon(
               icon,
               size: 20,
-              color: isActive ? AppColors.primary : AppColors.textSecondary,
+              color: isActive ? AppColors.acc : AppColors.t3,
             ),
             const SizedBox(width: 8),
             Text(
               label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isActive ? AppColors.primary : AppColors.textSecondary,
+              style: AppTextStyles.body.copyWith(
+                color: isActive ? AppColors.acc : AppColors.t3,
               ),
             ),
           ],

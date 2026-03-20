@@ -3,126 +3,103 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // ── Primary Gold ──
-  static const Color primary = Color(0xFFC9A84C);
-  static const Color primaryLight = Color(0xFFDFC06E);
-  static const Color primaryDark = Color(0xFFAA8A2E);
-  static const Color primaryMuted = Color(0x33C9A84C); // 20% opacity
+  // ── Backgrounds ──
+  static const Color canvas = Color(0xFF0A0C0F);
+  static const Color surface1 = Color(0xFF111318);
+  static const Color surface2 = Color(0xFF181C22);
+  static const Color surface3 = Color(0xFF1F2430);
 
-  // ── Status Colors ──
-  static const Color success = Color(0xFF4ADE80);
-  static const Color warning = Color(0xFFFBBF24);
-  static const Color error = Color(0xFFF87171);
-  static const Color info = Color(0xFF60A5FA);
+  // ── Borders ──
+  static const Color border1 = Color(0xFF252B35);
+  static const Color border2 = Color(0xFF2F3744);
+  static const Color border3 = Color(0xFF3A4455);
 
-  // ── Item Status Colors ──
-  static const Color statusStorage = Color(0xFF4ADE80);
-  static const Color statusInProject = Color(0xFFC9A84C);
-  static const Color statusMissing = Color(0xFFF87171);
-  static const Color statusUnderRepair = Color(0xFFFBBF24);
-  static const Color statusRetired = Color(0xFF666666);
+  // ── Text hierarchy ──
+  static const Color t1 = Color(0xFFF8FAFC);
+  static const Color t2 = Color(0xFFCBD5E1);
+  static const Color t3 = Color(0xFF94A3B8);
+  static const Color t4 = Color(0xFF64748B);
+  static const Color t5 = Color(0xFF475569);
 
-  // ── Dark Surfaces ──
-  static const Color background = Color(0xFF0A0A0A);
-  static const Color surface = Color(0xFF141414);
-  static const Color surfaceLight = Color(0xFF1E1E1E);
-  static const Color surfaceElevated = Color(0xFF242424);
-  static const Color cardBorder = Color(0xFF2A2A2A);
-  static const Color divider = Color(0xFF1F1F1F);
+  // ── Primary — Electric Blue ──
+  static const Color accBg = Color(0xFF0D1F3C);
+  static const Color accBorder = Color(0xFF1A3560);
+  static const Color acc = Color(0xFF2B7FFF);
+  static const Color accText = Color(0xFF6AAEFF);
 
-  // ── Text ──
-  static const Color textPrimary = Color(0xFFF5F5F5);
-  static const Color textSecondary = Color(0xFFA0A0A0);
-  static const Color textTertiary = Color(0xFF666666);
-  static const Color textOnPrimary = Color(0xFF0A0A0A);
+  // ── Emerald — active, in project, success ──
+  static const Color emBg = Color(0xFF051F13);
+  static const Color emBorder = Color(0xFF0A3D25);
+  static const Color em = Color(0xFF10B981);
+  static const Color emText = Color(0xFF34D399);
 
-  // ── Glassmorphism ──
-  static const Color glass = Color(0x0FFFFFFF);         // white 6%
-  static const Color glassMedium = Color(0x1AFFFFFF);    // white 10%
-  static const Color glassBorder = Color(0x1AFFFFFF);    // white 10%
-  static const Color glassHighlight = Color(0x0DFFFFFF); // white 5%
-  static const Color glassStrong = Color(0x33FFFFFF);    // white 20%
+  // ── Amber — warning, repair, caution ──
+  static const Color amBg = Color(0xFF1F1505);
+  static const Color amBorder = Color(0xFF3D2A08);
+  static const Color am = Color(0xFFF59E0B);
+  static const Color amText = Color(0xFFFBC33A);
 
-  // ── Gold Glass (for premium elements) ──
-  static const Color goldGlass = Color(0x1AC9A84C);     // gold 10%
-  static const Color goldGlassBorder = Color(0x33C9A84C); // gold 20%
+  // ── Rose — missing, error, critical ──
+  static const Color reBg = Color(0xFF1F0808);
+  static const Color reBorder = Color(0xFF3D1010);
+  static const Color re = Color(0xFFEF4444);
+  static const Color reText = Color(0xFFF87171);
 
-  // ── Gradients ──
-  static const LinearGradient goldGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFC9A84C), Color(0xFFAA8A2E)],
-  );
+  // ── Slate — storage, neutral, retired ──
+  static const Color slBg = Color(0xFF111318);
+  static const Color slBorder = Color(0xFF252B35);
+  static const Color sl = Color(0xFF475569);
+  static const Color slText = Color(0xFF94A3B8);
 
-  static const LinearGradient goldShimmer = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFC9A84C), Color(0xFFDFC06E), Color(0xFFC9A84C)],
-  );
+  // ── Retired (darker variant of slate) ──
+  static const Color retiredBg = Color(0xFF0E1014);
+  static const Color retiredBorder = Color(0xFF1C2028);
+  static const Color retiredText = Color(0xFF64748B);
 
-  static const LinearGradient glassGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0x1AFFFFFF), Color(0x0DFFFFFF)],
-  );
+  static const Color textOnPrimary = Color(0xFFFFFFFF);
 
-  static const LinearGradient surfaceGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF141414), Color(0xFF0A0A0A)],
-  );
+  static const Color conditionExcellent = em;
+  static const Color conditionGood = emText;
+  static const Color conditionFair = am;
+  static const Color conditionPoor = amText;
+  static const Color conditionDamaged = reText;
+  static const Color inStorage = slText;
+  static const Color checkedOut = emText;
+  static const Color maintenance = amText;
+  static const Color retired = retiredText;
+  static const Color iconDefault = t3;
 
-  // ── Shadows ──
-  static const List<BoxShadow> goldGlow = [
-    BoxShadow(
-      color: Color(0x33C9A84C),
-      blurRadius: 20,
-      spreadRadius: -4,
-    ),
-  ];
+  // ── Item status colours ──
+  static const Color statusStorage = slText;
+  static const Color statusInProject = emText;
+  static const Color statusMissing = reText;
+  static const Color statusUnderRepair = amText;
+  static const Color statusRetired = retiredText;
 
-  static const List<BoxShadow> subtleGlow = [
-    BoxShadow(
-      color: Color(0x1AC9A84C),
-      blurRadius: 12,
-      spreadRadius: -2,
-    ),
-  ];
+  /// Returns the badge colours (background, border, text) for an item status.
+  static ({Color bg, Color border, Color text}) statusBadge(String status) {
+    return switch (status) {
+      'storage' => (bg: slBg, border: slBorder, text: slText),
+      'in_project' => (bg: emBg, border: emBorder, text: emText),
+      'missing' => (bg: reBg, border: reBorder, text: reText),
+      'under_repair' => (bg: amBg, border: amBorder, text: amText),
+      'retired' => (bg: retiredBg, border: retiredBorder, text: retiredText),
+      _ => (bg: slBg, border: slBorder, text: slText),
+    };
+  }
 
-  // ── Legacy aliases (backward compat) ──
-  static const Color inStorage = statusStorage;
-  static const Color checkedOut = statusInProject;
-  static const Color maintenance = statusUnderRepair;
-  static const Color retired = statusRetired;
-  static const Color iconDefault = textSecondary;
-
-  static const Color conditionExcellent = Color(0xFF4ADE80);
-  static const Color conditionGood = Color(0xFF86EFAC);
-  static const Color conditionFair = Color(0xFFFBBF24);
-  static const Color conditionPoor = Color(0xFFFB923C);
-  static const Color conditionDamaged = Color(0xFFF87171);
-
-  // Helper to get status color
+  /// Flat status colour (for dots, icons).
   static Color getStatusColor(String status) {
-    switch (status) {
-      case 'storage':
-        return statusStorage;
-      case 'in_project':
-        return statusInProject;
-      case 'missing':
-        return statusMissing;
-      case 'under_repair':
-        return statusUnderRepair;
-      case 'retired':
-        return statusRetired;
-      case 'active':
-        return success;
-      case 'completed':
-        return info;
-      case 'archived':
-        return textTertiary;
-      default:
-        return textSecondary;
-    }
+    return switch (status) {
+      'storage' => sl,
+      'in_project' => em,
+      'missing' => re,
+      'under_repair' => am,
+      'retired' => retiredText,
+      'active' => em,
+      'completed' => acc,
+      'archived' => t4,
+      _ => t3,
+    };
   }
 }

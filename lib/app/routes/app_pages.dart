@@ -17,6 +17,8 @@ import '../modules/scan/scan_result_view.dart';
 import '../modules/projects/project_detail_view.dart';
 import '../modules/projects/project_detail_controller.dart';
 import '../modules/account/about_view.dart';
+import '../modules/account/members_view.dart';
+import '../modules/account/members_controller.dart';
 import '../modules/account/scanner_settings_view.dart';
 import '../modules/account/upgrade_view.dart';
 
@@ -73,6 +75,13 @@ class AppPages {
       page: () => const ProjectDetailView(),
       binding: BindingsBuilder(() {
         Get.lazyPut<ProjectDetailController>(() => ProjectDetailController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.members,
+      page: () => const MembersView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<MembersController>(() => MembersController());
       }),
     ),
     GetPage(

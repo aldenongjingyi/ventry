@@ -20,6 +20,7 @@ class ProjectsController extends GetxController {
   final recentActivity = <ActivityLogModel>[].obs;
   final isLoading = true.obs;
   final hasError = false.obs;
+  final filterStatus = ''.obs;
 
   RealtimeChannel? _channel;
 
@@ -70,14 +71,14 @@ class ProjectsController extends GetxController {
       SupabaseService.to.loadOrgUsage();
       Get.snackbar('Success', 'Project created',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to create project',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }
@@ -85,6 +86,13 @@ class ProjectsController extends GetxController {
   List<ProjectModel> get activeProjects => projects.where((p) => p.status == 'active').toList();
   List<ProjectModel> get completedProjects => projects.where((p) => p.status == 'completed').toList();
   List<ProjectModel> get archivedProjects => projects.where((p) => p.status == 'archived').toList();
+
+  List<ProjectModel> get filteredProjects {
+    if (filterStatus.value.isEmpty) return projects;
+    return projects.where((p) => p.status == filterStatus.value).toList();
+  }
+
+  void setFilterStatus(String status) => filterStatus.value = status;
 
   @override
   void onClose() {

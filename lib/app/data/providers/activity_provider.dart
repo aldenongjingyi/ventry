@@ -7,7 +7,7 @@ class ActivityProvider {
   Future<List<Map<String, dynamic>>> getByOrg(String orgId, {int limit = 50}) async {
     return await _client
         .from('activity_log')
-        .select('*, org_memberships!activity_log_user_id_fkey(full_name)')
+        .select()
         .eq('organisation_id', orgId)
         .order('created_at', ascending: false)
         .limit(limit);
@@ -16,7 +16,7 @@ class ActivityProvider {
   Future<List<Map<String, dynamic>>> getByEntity(String entityId, {int limit = 20}) async {
     return await _client
         .from('activity_log')
-        .select('*, org_memberships!activity_log_user_id_fkey(full_name)')
+        .select()
         .eq('entity_id', entityId)
         .order('created_at', ascending: false)
         .limit(limit);

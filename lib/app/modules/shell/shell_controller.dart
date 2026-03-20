@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 import '../../data/services/supabase_service.dart';
 import '../../routes/app_routes.dart';
 import '../account/account_controller.dart';
-import '../account/members_controller.dart';
+import '../home/home_controller.dart';
 import '../items/items_controller.dart';
 import '../projects/projects_controller.dart';
 
 class ShellController extends GetxController {
-  final currentIndex = 1.obs; // Default to Projects tab
+  final currentIndex = 0.obs; // Default to Home tab
 
   @override
   void onInit() {
@@ -30,9 +30,9 @@ class ShellController extends GetxController {
   }
 
   void _reloadAll() {
+    try { Get.find<HomeController>().loadHome(); } catch (_) {}
     try { Get.find<ItemsController>().loadItems(); } catch (_) {}
     try { Get.find<ProjectsController>().loadProjects(); } catch (_) {}
-    try { Get.find<MembersController>().loadMembers(); } catch (_) {}
     try { Get.find<AccountController>().loadMemberships(); } catch (_) {}
   }
 

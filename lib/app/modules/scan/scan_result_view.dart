@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/glass_card.dart';
-import '../../widgets/glass_background.dart';
 
 class ScanResultView extends StatelessWidget {
   const ScanResultView({super.key});
@@ -13,31 +12,28 @@ class ScanResultView extends StatelessWidget {
     final args = Get.arguments as Map<String, dynamic>?;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: GlassBackground(
-        style: GlassBackgroundStyle.minimal,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back,
-                          color: AppColors.textPrimary),
-                      onPressed: () => Get.back(),
-                    ),
-                    Text('Scan Result', style: AppTextStyles.h3),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Expanded(
-                  child: _buildContent(args),
-                ),
-              ],
-            ),
+      backgroundColor: AppColors.canvas,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Header
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back,
+                        color: AppColors.t1),
+                    onPressed: () => Get.back(),
+                  ),
+                  Text('Scan Result', style: AppTextStyles.cardTitle),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Expanded(
+                child: _buildContent(args),
+              ),
+            ],
           ),
         ),
       ),
@@ -48,7 +44,7 @@ class ScanResultView extends StatelessWidget {
     if (args == null) {
       return _buildState(
         icon: Icons.qr_code_2_rounded,
-        color: AppColors.textTertiary,
+        color: AppColors.t4,
         title: 'Unknown QR Code',
         subtitle: 'This QR code is not recognised',
       );
@@ -61,10 +57,19 @@ class ScanResultView extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline,
-                size: 56, color: AppColors.primary),
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surface3,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border2, width: 0.5),
+              ),
+              child: const Icon(Icons.check_circle_outline,
+                  size: 24, color: AppColors.acc),
+            ),
             const SizedBox(height: 16),
-            Text('Item Found', style: AppTextStyles.h2),
+            Text('Item Found', style: AppTextStyles.screenTitle),
             const SizedBox(height: 8),
             GlassCard(
               padding: const EdgeInsets.all(16),
@@ -72,7 +77,7 @@ class ScanResultView extends StatelessWidget {
                 children: [
                   if (args['name'] != null)
                     Text(args['name'] as String,
-                        style: AppTextStyles.subtitle),
+                        style: AppTextStyles.itemName),
                   if (args['status'] != null) ...[
                     const SizedBox(height: 4),
                     Text(args['status'] as String,
@@ -85,24 +90,18 @@ class ScanResultView extends StatelessWidget {
             if (args['itemId'] != null) ...[
               SizedBox(
                 width: double.infinity,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: AppColors.goldGradient,
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () =>
-                          Get.toNamed('/items/${args['itemId']}'),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Center(
-                          child:
-                              Text('View Details', style: AppTextStyles.button),
-                        ),
+                child: Material(
+                  color: AppColors.acc,
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    onTap: () =>
+                        Get.toNamed('/items/${args['itemId']}'),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      child: Center(
+                        child:
+                            Text('View Details', style: AppTextStyles.button),
                       ),
                     ),
                   ),
@@ -115,7 +114,7 @@ class ScanResultView extends StatelessWidget {
       case 'wrong_org':
         return _buildState(
           icon: Icons.block_rounded,
-          color: AppColors.warning,
+          color: AppColors.amText,
           title: 'Wrong Organisation',
           subtitle: "This item doesn't belong to your organisation",
         );
@@ -123,7 +122,7 @@ class ScanResultView extends StatelessWidget {
       default:
         return _buildState(
           icon: Icons.qr_code_2_rounded,
-          color: AppColors.textTertiary,
+          color: AppColors.t4,
           title: 'Unknown QR Code',
           subtitle: 'This QR code is not recognised',
         );
@@ -139,12 +138,21 @@ class ScanResultView extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 56, color: color),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.surface3,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border2, width: 0.5),
+          ),
+          child: Icon(icon, size: 24, color: color),
+        ),
         const SizedBox(height: 16),
-        Text(title, style: AppTextStyles.h2),
+        Text(title, style: AppTextStyles.screenTitle),
         const SizedBox(height: 8),
         Text(subtitle,
-            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.body.copyWith(color: AppColors.t3),
             textAlign: TextAlign.center),
       ],
     );

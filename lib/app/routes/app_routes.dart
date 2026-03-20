@@ -5,6 +5,7 @@ abstract class AppRoutes {
   static const onboarding = '/onboarding';
   static const noOrganisation = '/no-organisation';
   static const shell = '/shell';
+  static const home = '/home';
   static const items = '/items';
   static const itemDetail = '/items/:id';
   static const scan = '/scan';

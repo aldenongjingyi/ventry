@@ -9,25 +9,26 @@ class ShimmerList extends StatelessWidget {
   const ShimmerList({
     super.key,
     this.itemCount = 5,
-    this.padding = const EdgeInsets.symmetric(horizontal: 20),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
   });
 
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFF1A1A1A),
-      highlightColor: const Color(0xFF2A2A2A),
+      baseColor: AppColors.surface2,
+      highlightColor: AppColors.surface3,
       child: ListView.separated(
         padding: padding,
+        shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: itemCount,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (_, _) => Container(
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (_, __) => Container(
           height: 72,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surface2,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(color: AppColors.border1, width: 0.5),
           ),
         ),
       ),

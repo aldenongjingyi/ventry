@@ -51,8 +51,8 @@ class AccountController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Failed to switch organisation',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     } finally {
       isSwitching.value = false;
@@ -89,15 +89,15 @@ class AccountController extends GetxController {
 
       Get.snackbar('Joined', 'You joined $orgName',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       final msg = e is PostgrestException ? e.message : 'Failed to join organisation';
       Get.snackbar('Error', msg,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
       rethrow;
     }

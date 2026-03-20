@@ -44,14 +44,14 @@ class ProjectDetailController extends GetxController {
       await loadProject();
       Get.snackbar('Success', 'Project completed',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to complete project',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }
@@ -62,14 +62,14 @@ class ProjectDetailController extends GetxController {
       await loadProject();
       Get.snackbar('Success', 'Project archived',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to archive project',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }
@@ -80,14 +80,14 @@ class ProjectDetailController extends GetxController {
       Get.back();
       Get.snackbar('Deleted', 'Project has been removed',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete project',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.error,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
       );
     }
   }

@@ -4,7 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../widgets/glass_card.dart';
-import '../../../widgets/glass_background.dart';
 import '../../../data/services/supabase_service.dart';
 import '../../../routes/app_routes.dart';
 
@@ -57,8 +56,8 @@ class _JoinInviteViewState extends State<JoinInviteView> {
       Get.offAllNamed(AppRoutes.shell);
       Get.snackbar('Joined', 'You joined $orgName',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.surfaceElevated,
-        colorText: AppColors.textPrimary,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
       );
     } on PostgrestException catch (e) {
       _error.value = e.message;
@@ -72,96 +71,83 @@ class _JoinInviteViewState extends State<JoinInviteView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: GlassBackground(
-        style: GlassBackgroundStyle.minimal,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(Icons.group_add_rounded,
-                    size: 56, color: AppColors.primary),
-                const SizedBox(height: 20),
-                Text('Join Organisation',
-                    style: AppTextStyles.h2, textAlign: TextAlign.center),
-                const SizedBox(height: 8),
-                Text(
-                  "You've been invited to join an organisation",
-                  style: AppTextStyles.body
-                      .copyWith(color: AppColors.textSecondary),
-                  textAlign: TextAlign.center,
+      backgroundColor: AppColors.canvas,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.group_add_rounded,
+                  size: 56, color: AppColors.acc),
+              const SizedBox(height: 20),
+              Text('Join Organisation',
+                  style: AppTextStyles.screenTitle, textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+              Text(
+                "You've been invited to join an organisation",
+                style: AppTextStyles.body
+                    .copyWith(color: AppColors.t3),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              GlassCard(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.vpn_key_rounded,
+                        color: AppColors.acc, size: 20),
+                    const SizedBox(width: 12),
+                    Text('Code: $code', style: AppTextStyles.body),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                GlassCard(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.vpn_key_rounded,
-                          color: AppColors.primary, size: 20),
-                      const SizedBox(width: 12),
-                      Text('Code: $code', style: AppTextStyles.bodyMedium),
-                    ],
-                  ),
-                ),
-                Obx(() => _error.value.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Text(_error.value,
-                            style: AppTextStyles.caption
-                                .copyWith(color: AppColors.error),
-                            textAlign: TextAlign.center),
-                      )
-                    : const SizedBox.shrink()),
-                const SizedBox(height: 24),
-                Obx(() => Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: AppColors.goldGradient,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: _isJoining.value ? null : _join,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Center(
-                          child: _isJoining.value
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.textOnPrimary,
-                                  ),
-                                )
-                              : Text('Join', style: AppTextStyles.button),
-                        ),
+              ),
+              Obx(() => _error.value.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(_error.value,
+                          style: AppTextStyles.caption
+                              .copyWith(color: AppColors.reText),
+                          textAlign: TextAlign.center),
+                    )
+                  : const SizedBox.shrink()),
+              const SizedBox(height: 24),
+              Obx(() => Material(
+                color: AppColors.acc,
+                borderRadius: BorderRadius.circular(10),
+                child: InkWell(
+                  onTap: _isJoining.value ? null : _join,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Opacity(
+                    opacity: _isJoining.value ? 0.35 : 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      child: Center(
+                        child: _isJoining.value
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.textOnPrimary,
+                                ),
+                              )
+                            : Text('Join', style: AppTextStyles.button),
                       ),
                     ),
                   ),
-                )),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () => Get.back(),
-                  child: Text('Cancel',
-                      style: AppTextStyles.bodyMedium
-                          .copyWith(color: AppColors.textSecondary)),
                 ),
-              ],
-            ),
+              )),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Get.back(),
+                child: Text('Cancel',
+                    style: AppTextStyles.body
+                        .copyWith(color: AppColors.t3)),
+              ),
+            ],
           ),
         ),
       ),

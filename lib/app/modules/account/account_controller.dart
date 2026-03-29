@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/services/supabase_service.dart';
+import '../../config/flavor_config.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 
@@ -94,6 +95,44 @@ class AccountController extends GetxController {
       );
     } catch (e) {
       final msg = e is PostgrestException ? e.message : 'Failed to join organisation';
+      Get.snackbar('Error', msg,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> createOrg(String name) async {
+    try {
+      final fullName = _supabase.currentUser?.userMetadata?['full_name'] ??
+          _supabase.currentUser?.email ?? 'User';
+
+      final orgId = await _supabase.client.rpc('perform_onboarding', params: {
+        'p_org_name': name.trim(),
+        'p_full_name': fullName,
+      });
+
+      // Dev flavor: auto-upgrade to pro for testing
+      final plan = FlavorConfig.isDev ? 'pro' : 'free';
+      if (FlavorConfig.isDev) {
+        await _supabase.client
+            .from('organisations')
+            .update({'plan': 'pro'})
+            .eq('id', orgId);
+      }
+
+      await _supabase.switchOrg(orgId as String, name.trim(), 'admin', plan);
+      await loadMemberships();
+
+      Get.snackbar('Created', '$name is ready to use',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.t1,
+      );
+    } catch (e) {
+      final msg = e is PostgrestException ? e.message : 'Failed to create organisation';
       Get.snackbar('Error', msg,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.surface3,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/add_project_sheet.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/shimmer_list.dart';
 import '../../widgets/empty_state.dart';
@@ -116,7 +117,7 @@ class ProjectsListView extends GetView<ProjectsController> {
               return Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: SizedBox(
-                  height: 36,
+                  height: 34,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -318,23 +319,26 @@ class ProjectsListView extends GetView<ProjectsController> {
     return Obx(() {
       final isActive = controller.filterStatus.value == status;
       return Padding(
-        padding: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.only(right: 6),
         child: GestureDetector(
           onTap: () => controller.setFilterStatus(status),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 5),
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isActive ? AppColors.accBg : AppColors.surface2,
-              borderRadius: BorderRadius.circular(20),
+              color: isActive ? AppColors.accBg : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isActive ? AppColors.acc : AppColors.border1,
+                color: isActive ? AppColors.accBorder : AppColors.border1,
                 width: 0.5,
               ),
             ),
             child: Text(
               label,
-              style: AppTextStyles.micro.copyWith(
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
                 color: isActive ? AppColors.accText : AppColors.t4,
               ),
             ),
@@ -429,138 +433,6 @@ class ProjectsListView extends GetView<ProjectsController> {
   }
 
   void _showAddProjectSheet(BuildContext context) {
-    final nameController = TextEditingController();
-    final locationController = TextEditingController();
-    final isSubmitting = false.obs;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        padding: EdgeInsets.fromLTRB(
-            24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-        decoration: BoxDecoration(
-          color: AppColors.surface1,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: const Border(
-            top: BorderSide(color: AppColors.border1, width: 0.5),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border2,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text('Add Project', style: AppTextStyles.cardTitle),
-            const SizedBox(height: 8),
-            Text('Create a new project to organize items',
-                style: AppTextStyles.bodySecondary),
-            const SizedBox(height: 24),
-            TextField(
-              controller: nameController,
-              style: AppTextStyles.body,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Project Name',
-                hintText: 'e.g. Building A Renovation',
-                labelStyle: AppTextStyles.caption,
-                hintStyle: AppTextStyles.caption.copyWith(
-                    color: AppColors.t5),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                      color: AppColors.border2, width: 0.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                      color: AppColors.acc, width: 1),
-                ),
-                filled: true,
-                fillColor: AppColors.surface2,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 14),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: locationController,
-              style: AppTextStyles.body,
-              decoration: InputDecoration(
-                labelText: 'Location (optional)',
-                hintText: 'e.g. 123 Main St',
-                labelStyle: AppTextStyles.caption,
-                hintStyle: AppTextStyles.caption.copyWith(
-                    color: AppColors.t5),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                      color: AppColors.border2, width: 0.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                      color: AppColors.acc, width: 1),
-                ),
-                filled: true,
-                fillColor: AppColors.surface2,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 14),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Obx(() => Material(
-              color: AppColors.acc,
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                onTap: isSubmitting.value
-                    ? null
-                    : () async {
-                        final name = nameController.text.trim();
-                        if (name.isEmpty) return;
-                        isSubmitting.value = true;
-                        await controller.createProject(
-                          name,
-                          locationController.text.trim().isEmpty
-                              ? null
-                              : locationController.text.trim(),
-                        );
-                        isSubmitting.value = false;
-                        if (context.mounted) Navigator.of(context).pop();
-                      },
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Center(
-                    child: isSubmitting.value
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text('Create Project',
-                            style: AppTextStyles.button),
-                  ),
-                ),
-              ),
-            )),
-          ],
-        ),
-      ),
-    );
+    showAddProjectSheet(context, onCreated: () => controller.loadProjects());
   }
 }

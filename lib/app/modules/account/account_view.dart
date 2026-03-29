@@ -291,6 +291,12 @@ class AccountView extends GetView<AccountController> {
                         title: 'Join Organisation',
                         onTap: () => _showJoinOrgSheet(context),
                       ),
+                      Divider(height: 1, color: AppColors.border1),
+                      _buildSettingTile(
+                        icon: Icons.add_business_rounded,
+                        title: 'Create Organisation',
+                        onTap: () => _showCreateOrgSheet(context),
+                      ),
                     ],
                   ),
                 );
@@ -301,6 +307,12 @@ class AccountView extends GetView<AccountController> {
               GlassCard(
                 child: Column(
                   children: [
+                    _buildSettingTile(
+                      icon: Icons.settings_outlined,
+                      title: 'Settings',
+                      onTap: () => _showSettingsSheet(context),
+                    ),
+                    Divider(height: 1, color: AppColors.border1),
                     _buildSettingTile(
                       icon: Icons.qr_code_scanner,
                       title: 'Scanner Settings',
@@ -466,6 +478,113 @@ class AccountView extends GetView<AccountController> {
     );
   }
 
+  // ── Create Org Sheet ──
+  void _showCreateOrgSheet(BuildContext context) {
+    final nameCtrl = TextEditingController();
+    final isSubmitting = false.obs;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.fromLTRB(
+            24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        decoration: const BoxDecoration(
+          color: AppColors.surface1,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border2,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Create Organisation', style: AppTextStyles.cardTitle),
+            const SizedBox(height: 8),
+            Text('Start a new organisation to manage equipment',
+                style: AppTextStyles.bodySecondary),
+            const SizedBox(height: 24),
+            TextField(
+              controller: nameCtrl,
+              autofocus: true,
+              style: AppTextStyles.body,
+              decoration: InputDecoration(
+                labelText: 'Organisation Name',
+                hintText: 'e.g. Acme Construction',
+                labelStyle: AppTextStyles.caption,
+                hintStyle:
+                    AppTextStyles.caption.copyWith(color: AppColors.t5),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      const BorderSide(color: AppColors.border2, width: 0.5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      const BorderSide(color: AppColors.acc, width: 1),
+                ),
+                filled: true,
+                fillColor: AppColors.surface2,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Obx(() => Material(
+                  color: AppColors.acc,
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    onTap: isSubmitting.value
+                        ? null
+                        : () async {
+                            final name = nameCtrl.text.trim();
+                            if (name.isEmpty) return;
+                            isSubmitting.value = true;
+                            try {
+                              await controller.createOrg(name);
+                              if (ctx.mounted) Navigator.of(ctx).pop();
+                            } catch (_) {
+                              // Error snackbar shown by controller
+                            } finally {
+                              isSubmitting.value = false;
+                            }
+                          },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Center(
+                        child: isSubmitting.value
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text('Create Organisation',
+                                style: AppTextStyles.button),
+                      ),
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Join Org Sheet ──
   void _showJoinOrgSheet(BuildContext context) {
     // Multi-org gate
@@ -590,6 +709,146 @@ class AccountView extends GetView<AccountController> {
                 ),
               ),
             )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Settings Sheet ──
+  void _showSettingsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.fromLTRB(
+            24, 24, 24, MediaQuery.of(ctx).padding.bottom + 24),
+        decoration: const BoxDecoration(
+          color: AppColors.surface1,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border2,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Settings', style: AppTextStyles.cardTitle),
+            const SizedBox(height: 24),
+
+            // ── Preferences ──
+            Text('PREFERENCES', style: AppTextStyles.sectionLabel),
+            const SizedBox(height: 12),
+            GlassCard(
+              child: Column(
+                children: [
+                  Obx(() => _SettingsToggle(
+                    icon: Icons.dark_mode_outlined,
+                    title: 'Dark Mode',
+                    subtitle: 'Currently always dark',
+                    value: true,
+                    onChanged: (v) {
+                      Get.snackbar('Coming Soon', 'Light mode is coming in a future update',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.surface3,
+                        colorText: AppColors.t2,
+                      );
+                    },
+                  )),
+                  const Divider(height: 1, color: AppColors.border1),
+                  _SettingsToggle(
+                    icon: Icons.vibration_outlined,
+                    title: 'Haptic Feedback',
+                    subtitle: 'Vibrate on actions',
+                    value: true,
+                    onChanged: (v) {},
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Notifications ──
+            Text('NOTIFICATIONS', style: AppTextStyles.sectionLabel),
+            const SizedBox(height: 12),
+            GlassCard(
+              child: Column(
+                children: [
+                  _SettingsToggle(
+                    icon: Icons.notifications_outlined,
+                    title: 'Push Notifications',
+                    subtitle: 'Item moves and project updates',
+                    value: false,
+                    onChanged: (v) {
+                      Get.snackbar('Coming Soon', 'Notifications coming in a future update',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.surface3,
+                        colorText: AppColors.t2,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── App Info ──
+            Text('APP INFO', style: AppTextStyles.sectionLabel),
+            const SizedBox(height: 12),
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _InfoRow(label: 'Version', value: '1.0.0'),
+                  const SizedBox(height: 10),
+                  _InfoRow(label: 'Build', value: '1'),
+                  const SizedBox(height: 10),
+                  _InfoRow(label: 'Bundle ID', value: 'com.ventry.app'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // ── Legal ──
+            Text('LEGAL', style: AppTextStyles.sectionLabel),
+            const SizedBox(height: 12),
+            GlassCard(
+              child: Column(
+                children: [
+                  _buildSettingTile(
+                    icon: Icons.description_outlined,
+                    title: 'Terms of Service',
+                    onTap: () {},
+                  ),
+                  const Divider(height: 1, color: AppColors.border1),
+                  _buildSettingTile(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Privacy Policy',
+                    onTap: () {},
+                  ),
+                  const Divider(height: 1, color: AppColors.border1),
+                  _buildSettingTile(
+                    icon: Icons.source_outlined,
+                    title: 'Open Source Licenses',
+                    onTap: () => showLicensePage(
+                      context: ctx,
+                      applicationName: 'Ventry',
+                      applicationVersion: '1.0.0',
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -835,6 +1094,70 @@ class _UsageRow extends StatelessWidget {
             ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _SettingsToggle extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SettingsToggle({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.t3, size: 22),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyles.body.copyWith(color: AppColors.t2)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: AppTextStyles.caption),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeTrackColor: AppColors.acc,
+            activeThumbColor: Colors.white,
+            inactiveTrackColor: AppColors.surface3,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _InfoRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTextStyles.caption),
+        Text(value, style: AppTextStyles.body.copyWith(color: AppColors.t2, fontSize: 13)),
       ],
     );
   }

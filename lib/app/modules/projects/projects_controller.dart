@@ -64,9 +64,37 @@ class ProjectsController extends GetxController {
     }
   }
 
-  Future<void> createProject(String name, String? location) async {
+  Future<bool> createProject(
+    String name, {
+    String? location,
+    String? icon,
+    String? description,
+    DateTime? startDate,
+    DateTime? dueDate,
+    List<String> assignItemIds = const [],
+  }) async {
+    if (projects.any((p) => p.name.toLowerCase() == name.toLowerCase())) {
+      Get.snackbar('Error', 'A project with that name already exists',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.surface3,
+        colorText: AppColors.reText,
+      );
+      return false;
+    }
     try {
-      await _projectRepo.create(orgId, name, location);
+      final project = await _projectRepo.create(
+        orgId,
+        name,
+        location: location,
+        icon: icon,
+        description: description,
+        startDate: startDate,
+        dueDate: dueDate,
+      );
+      // Assign items to the new project
+      for (final itemId in assignItemIds) {
+        await _itemRepo.relocate(itemId, 'in_project', projectId: project.id);
+      }
       await loadProjects();
       SupabaseService.to.loadOrgUsage();
       Get.snackbar('Success', 'Project created',
@@ -74,12 +102,14 @@ class ProjectsController extends GetxController {
         backgroundColor: AppColors.surface3,
         colorText: AppColors.t1,
       );
+      return true;
     } catch (e) {
       Get.snackbar('Error', 'Failed to create project',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.surface3,
         colorText: AppColors.reText,
       );
+      return false;
     }
   }
 

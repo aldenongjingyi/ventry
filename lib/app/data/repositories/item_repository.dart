@@ -45,15 +45,29 @@ class ItemRepository {
     ).toList();
   }
 
-  Future<ItemModel> create(String orgId, String name, String? notes) async {
-    final nextNumber = await SupabaseService.to.client.rpc('next_item_number', params: {'p_org_id': orgId});
-    final data = await _provider.create({
-      'organisation_id': orgId,
-      'name': name,
-      'item_number': nextNumber,
-      'notes': notes,
+  /// Creates [quantity] items with the given name, auto-assigning sequential IDs.
+  Future<List<String>> createBatch({
+    required String orgId,
+    required String name,
+    required int quantity,
+    String? labelColor,
+    String? itemGroupId,
+    String? notes,
+  }) async {
+    final result = await SupabaseService.to.client.rpc('create_items_batch', params: {
+      'p_org_id': orgId,
+      'p_name': name,
+      'p_quantity': quantity,
+      'p_label_color': labelColor,
+      'p_item_group_id': itemGroupId,
+      'p_notes': notes,
     });
-    return ItemModel.fromJson(data);
+    return (result as List).cast<String>();
+  }
+
+  /// Single item create — delegates to batch with quantity 1.
+  Future<void> create(String orgId, String name, String? notes) async {
+    await createBatch(orgId: orgId, name: name, quantity: 1, notes: notes);
   }
 
   Future<void> update(String id, Map<String, dynamic> data) async {

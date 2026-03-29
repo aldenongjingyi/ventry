@@ -4,10 +4,12 @@ import '../services/supabase_service.dart';
 class ItemProvider {
   final _client = SupabaseService.to.client;
 
+  static const _select = '*, projects(name), item_groups(name)';
+
   Future<List<Map<String, dynamic>>> getByOrg(String orgId) async {
     return await _client
         .from('items')
-        .select('*, projects(name)')
+        .select(_select)
         .eq('organisation_id', orgId)
         .order('item_number');
   }
@@ -15,7 +17,7 @@ class ItemProvider {
   Future<Map<String, dynamic>?> getById(String id) async {
     return await _client
         .from('items')
-        .select('*, projects(name)')
+        .select(_select)
         .eq('id', id)
         .maybeSingle();
   }
@@ -23,7 +25,7 @@ class ItemProvider {
   Future<Map<String, dynamic>?> getByQrCode(String qrCode) async {
     return await _client
         .from('items')
-        .select('*, projects(name)')
+        .select(_select)
         .eq('qr_code', qrCode)
         .maybeSingle();
   }
@@ -31,7 +33,7 @@ class ItemProvider {
   Future<List<Map<String, dynamic>>> getByProject(String projectId) async {
     return await _client
         .from('items')
-        .select('*, projects(name)')
+        .select(_select)
         .eq('project_id', projectId)
         .order('item_number');
   }

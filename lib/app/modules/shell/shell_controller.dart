@@ -27,6 +27,10 @@ class ShellController extends GetxController {
 
   void changePage(int index) {
     currentIndex.value = index;
+    // Refresh home data when returning to the home tab
+    if (index == 0) {
+      try { Get.find<HomeController>().loadHome(); } catch (_) {}
+    }
   }
 
   void _reloadAll() {

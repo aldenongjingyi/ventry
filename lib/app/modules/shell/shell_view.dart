@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
@@ -26,7 +27,7 @@ class ShellView extends GetView<ShellController> {
                 children: [
                   // Brand bar — shared across all tabs
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                     child: Row(
                       children: [
                         const Icon(
@@ -49,8 +50,8 @@ class ShellView extends GetView<ShellController> {
                       index: controller.currentIndex.value,
                       children: const [
                         HomeView(),           // 0
-                        ProjectsListView(),   // 1
-                        ItemsListView(),      // 2
+                        ItemsListView(),      // 1
+                        ProjectsListView(),   // 2
                         AccountView(),        // 3
                       ],
                     )),
@@ -80,9 +81,9 @@ class VentryBottomNav extends StatelessWidget {
   final VoidCallback onScanTapped;
 
   static const _barHeight = 64.0;
-  static const _fabSize = 56.0;
-  static const _fabBorder = 3.0;
-  static const _fabRaise = 28.0;
+  static const _fabSize = 64.0;
+  static const _fabBorder = 3.5;
+  static const _fabRaise = 32.0;
 
   const VentryBottomNav({
     super.key,
@@ -124,18 +125,18 @@ class VentryBottomNav extends StatelessWidget {
                     onTap: () => onTabSelected(0),
                   ),
                   _NavItem(
-                    activeIcon: Icons.folder_rounded,
-                    inactiveIcon: Icons.folder_outlined,
-                    label: 'Projects',
+                    activeIcon: Icons.inventory_2_rounded,
+                    inactiveIcon: Icons.inventory_2_outlined,
+                    label: 'Items',
                     isActive: currentIndex == 1,
                     onTap: () => onTabSelected(1),
                   ),
                   // Center placeholder for FAB
                   const Expanded(child: SizedBox()),
                   _NavItem(
-                    activeIcon: Icons.inventory_2_rounded,
-                    inactiveIcon: Icons.inventory_2_outlined,
-                    label: 'Items',
+                    activeIcon: Icons.folder_rounded,
+                    inactiveIcon: Icons.folder_outlined,
+                    label: 'Projects',
                     isActive: currentIndex == 2,
                     onTap: () => onTabSelected(2),
                   ),
@@ -157,7 +158,10 @@ class VentryBottomNav extends StatelessWidget {
             right: 0,
             child: Center(
               child: GestureDetector(
-                onTap: onScanTapped,
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  onScanTapped();
+                },
                 child: Container(
                   width: _fabSize + _fabBorder * 2,
                   height: _fabSize + _fabBorder * 2,
@@ -176,7 +180,7 @@ class VentryBottomNav extends StatelessWidget {
                       child: const Icon(
                         Icons.qr_code_scanner_rounded,
                         color: AppColors.textOnPrimary,
-                        size: 28,
+                        size: 32,
                       ),
                     ),
                   ),
@@ -211,7 +215,10 @@ class _NavItem extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

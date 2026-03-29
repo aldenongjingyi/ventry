@@ -14,7 +14,9 @@ void showRelocateSheet(
   required String itemName,
   required int itemNumber,
   VoidCallback? onComplete,
+  List<String>? bulkItemIds,
 }) {
+  final ids = bulkItemIds ?? [itemId];
   final isProcessing = false.obs;
 
   showModalBottomSheet(
@@ -54,10 +56,15 @@ void showRelocateSheet(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Relocate Item', style: AppTextStyles.cardTitle),
+                      Text(
+                        ids.length > 1 ? 'Relocate Items' : 'Relocate Item',
+                        style: AppTextStyles.cardTitle,
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                        '$itemName  #$itemNumber',
+                        ids.length > 1
+                            ? '${ids.length} items selected'
+                            : '$itemName  #$itemNumber',
                         style: AppTextStyles.bodySecondary,
                       ),
                     ],
@@ -85,9 +92,9 @@ void showRelocateSheet(
                     iconColor: AppColors.em,
                     title: 'Move to Storage',
                     subtitle: 'Return item to storage',
-                    onTap: () => _doRelocate(
+                    onTap: () => _doBulkRelocate(
                       context,
-                      itemId: itemId,
+                      itemIds: ids,
                       targetStatus: 'storage',
                       isProcessing: isProcessing,
                       onComplete: onComplete,
@@ -103,7 +110,7 @@ void showRelocateSheet(
                     subtitle: 'Move to an active project',
                     onTap: () => _showProjectPicker(
                       context,
-                      itemId: itemId,
+                      itemIds: ids,
                       isProcessing: isProcessing,
                       onComplete: onComplete,
                     ),
@@ -116,9 +123,9 @@ void showRelocateSheet(
                     iconColor: AppColors.re,
                     title: 'Mark as Missing',
                     subtitle: 'Flag this item as missing',
-                    onTap: () => _doRelocate(
+                    onTap: () => _doBulkRelocate(
                       context,
-                      itemId: itemId,
+                      itemIds: ids,
                       targetStatus: 'missing',
                       isProcessing: isProcessing,
                       onComplete: onComplete,
@@ -132,9 +139,9 @@ void showRelocateSheet(
                     iconColor: AppColors.am,
                     title: 'Send to Repair',
                     subtitle: 'Mark as under repair',
-                    onTap: () => _doRelocate(
+                    onTap: () => _doBulkRelocate(
                       context,
-                      itemId: itemId,
+                      itemIds: ids,
                       targetStatus: 'under_repair',
                       isProcessing: isProcessing,
                       onComplete: onComplete,
@@ -150,9 +157,9 @@ void showRelocateSheet(
   );
 }
 
-Future<void> _doRelocate(
+Future<void> _doBulkRelocate(
   BuildContext context, {
-  required String itemId,
+  required List<String> itemIds,
   required String targetStatus,
   String? projectId,
   required RxBool isProcessing,
@@ -160,16 +167,20 @@ Future<void> _doRelocate(
 }) async {
   isProcessing.value = true;
   try {
-    await ItemRepository().relocate(itemId, targetStatus, projectId: projectId);
+    final repo = ItemRepository();
+    for (final id in itemIds) {
+      await repo.relocate(id, targetStatus, projectId: projectId);
+    }
     if (context.mounted) Navigator.of(context).pop();
     onComplete?.call();
-    Get.snackbar('Success', 'Item relocated',
+    final label = itemIds.length > 1 ? '${itemIds.length} items relocated' : 'Item relocated';
+    Get.snackbar('Success', label,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.surface3,
       colorText: AppColors.t1,
     );
   } catch (e) {
-    Get.snackbar('Error', 'Failed to relocate item',
+    Get.snackbar('Error', 'Failed to relocate',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.surface3,
       colorText: AppColors.reText,
@@ -181,7 +192,7 @@ Future<void> _doRelocate(
 
 void _showProjectPicker(
   BuildContext context, {
-  required String itemId,
+  required List<String> itemIds,
   required RxBool isProcessing,
   VoidCallback? onComplete,
 }) async {
@@ -257,9 +268,9 @@ void _showProjectPicker(
                           style: AppTextStyles.caption),
                       onTap: () {
                         Navigator.of(ctx).pop();
-                        _doRelocate(
+                        _doBulkRelocate(
                           context,
-                          itemId: itemId,
+                          itemIds: itemIds,
                           targetStatus: 'in_project',
                           projectId: p.id,
                           isProcessing: isProcessing,

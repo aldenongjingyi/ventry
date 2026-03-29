@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/activity_log_model.dart';
 import '../../data/models/item_model.dart';
 import '../../data/models/project_model.dart';
@@ -19,16 +18,14 @@ class HomeController extends GetxController {
   final isLoading = true.obs;
   final hasError = false.obs;
 
-  // Checklist
-  final checklistProject = false.obs;
-  final checklistItem = false.obs;
-  final checklistInvite = false.obs;
+  // UI state
+  final projectsExpanded = false.obs;
 
   String get orgId => SupabaseService.to.activeOrgId.value ?? '';
 
   // Stats
   int get totalItems => items.length;
-  int get inStorageCount => items.where((i) => i.status == 'in_storage').length;
+  int get inStorageCount => items.where((i) => i.status == 'storage').length;
   int get inProjectCount => items.where((i) => i.status == 'in_project').length;
   int get missingCount => items.where((i) => i.status == 'missing').length;
   int get activeProjectCount =>
@@ -43,13 +40,10 @@ class HomeController extends GetxController {
   }
 
   List<ProjectModel> get activeProjects =>
-      projects.where((p) => p.status == 'active').take(3).toList();
+      projects.where((p) => p.status == 'active').toList();
 
   bool get hasContent =>
       items.isNotEmpty || projects.isNotEmpty || recentActivity.isNotEmpty;
-
-  bool get allChecklistDone =>
-      checklistProject.value && checklistItem.value && checklistInvite.value;
 
   // Greeting
   String get firstName {
@@ -78,7 +72,10 @@ class HomeController extends GetxController {
   }
 
   Future<void> loadHome() async {
-    if (orgId.isEmpty) return;
+    if (orgId.isEmpty) {
+      isLoading.value = false;
+      return;
+    }
     isLoading.value = true;
     hasError.value = false;
     try {
@@ -90,44 +87,10 @@ class HomeController extends GetxController {
       items.value = results[0] as List<ItemModel>;
       projects.value = results[1] as List<ProjectModel>;
       recentActivity.value = results[2] as List<ActivityLogModel>;
-      await _loadChecklist();
     } catch (_) {
       hasError.value = true;
     } finally {
       isLoading.value = false;
-    }
-  }
-
-  Future<void> _loadChecklist() async {
-    final prefs = await SharedPreferences.getInstance();
-    checklistProject.value =
-        prefs.getBool('checklist_project_$orgId') ?? projects.isNotEmpty;
-    checklistItem.value =
-        prefs.getBool('checklist_item_$orgId') ?? items.isNotEmpty;
-    checklistInvite.value =
-        prefs.getBool('checklist_invite_$orgId') ?? false;
-
-    // Auto-complete checklist steps based on data
-    if (projects.isNotEmpty && !checklistProject.value) {
-      checklistProject.value = true;
-      prefs.setBool('checklist_project_$orgId', true);
-    }
-    if (items.isNotEmpty && !checklistItem.value) {
-      checklistItem.value = true;
-      prefs.setBool('checklist_item_$orgId', true);
-    }
-  }
-
-  Future<void> completeChecklist(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('checklist_${key}_$orgId', true);
-    switch (key) {
-      case 'project':
-        checklistProject.value = true;
-      case 'item':
-        checklistItem.value = true;
-      case 'invite':
-        checklistInvite.value = true;
     }
   }
 }

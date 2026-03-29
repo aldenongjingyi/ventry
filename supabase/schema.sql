@@ -85,6 +85,10 @@ CREATE TABLE public.projects (
   organisation_id uuid NOT NULL REFERENCES public.organisations(id) ON DELETE CASCADE,
   name text NOT NULL,
   location text,
+  icon text,
+  description text,
+  start_date date,
+  due_date date,
   status text NOT NULL DEFAULT 'active'
     CHECK (status IN ('active', 'completed', 'archived')),
   created_at timestamptz NOT NULL DEFAULT now()
@@ -93,16 +97,44 @@ CREATE TABLE public.projects (
 CREATE INDEX idx_projects_org ON public.projects(organisation_id);
 CREATE INDEX idx_projects_status ON public.projects(status);
 
+-- Item Visuals (one icon or photo per item name per org)
+CREATE TABLE public.item_visuals (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organisation_id uuid NOT NULL REFERENCES public.organisations(id) ON DELETE CASCADE,
+  item_name text NOT NULL,
+  visual_type text NOT NULL CHECK (visual_type IN ('icon', 'photo')),
+  visual_value text NOT NULL,  -- icon name or storage path
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(organisation_id, item_name)
+);
+
+CREATE INDEX idx_item_visuals_org ON public.item_visuals(organisation_id);
+
+-- Item Groups (user-defined sorting categories)
+CREATE TABLE public.item_groups (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organisation_id uuid NOT NULL REFERENCES public.organisations(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(organisation_id, name)
+);
+
+CREATE INDEX idx_item_groups_org ON public.item_groups(organisation_id);
+
 -- Items (equipment / gear tracked by the org)
 CREATE TABLE public.items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organisation_id uuid NOT NULL REFERENCES public.organisations(id) ON DELETE CASCADE,
   name text NOT NULL,
   item_number int NOT NULL,
+  sequential_id int,
   status text NOT NULL DEFAULT 'storage'
     CHECK (status IN ('storage', 'in_project', 'missing', 'under_repair', 'retired')),
   project_id uuid REFERENCES public.projects(id) ON DELETE SET NULL,
   qr_code uuid NOT NULL DEFAULT gen_random_uuid(),
+  label_color text,
+  item_group_id uuid REFERENCES public.item_groups(id) ON DELETE SET NULL,
   notes text,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
@@ -114,6 +146,8 @@ CREATE INDEX idx_items_org ON public.items(organisation_id);
 CREATE INDEX idx_items_status ON public.items(status);
 CREATE INDEX idx_items_qr ON public.items(qr_code);
 CREATE INDEX idx_items_project ON public.items(project_id);
+CREATE INDEX idx_items_group ON public.items(item_group_id);
+CREATE INDEX idx_items_name_org ON public.items(organisation_id, name);
 
 -- Activity Log (tracks all item/project changes)
 CREATE TABLE public.activity_log (
@@ -301,6 +335,8 @@ $$;
 ALTER TABLE public.organisations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.org_memberships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.org_invites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.item_visuals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.item_groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
@@ -343,6 +379,32 @@ CREATE POLICY "Admins can update invites" ON public.org_invites
   FOR UPDATE USING (public.is_org_admin(organisation_id));
 
 CREATE POLICY "Admins can delete invites" ON public.org_invites
+  FOR DELETE USING (public.is_org_admin(organisation_id));
+
+-- Item Visuals: org-scoped
+CREATE POLICY "Members can view item visuals" ON public.item_visuals
+  FOR SELECT USING (public.is_org_member(organisation_id));
+
+CREATE POLICY "Members can insert item visuals" ON public.item_visuals
+  FOR INSERT WITH CHECK (public.is_org_member(organisation_id));
+
+CREATE POLICY "Members can update item visuals" ON public.item_visuals
+  FOR UPDATE USING (public.is_org_member(organisation_id));
+
+CREATE POLICY "Admins can delete item visuals" ON public.item_visuals
+  FOR DELETE USING (public.is_org_admin(organisation_id));
+
+-- Item Groups: org-scoped
+CREATE POLICY "Members can view item groups" ON public.item_groups
+  FOR SELECT USING (public.is_org_member(organisation_id));
+
+CREATE POLICY "Members can insert item groups" ON public.item_groups
+  FOR INSERT WITH CHECK (public.is_org_member(organisation_id));
+
+CREATE POLICY "Members can update item groups" ON public.item_groups
+  FOR UPDATE USING (public.is_org_member(organisation_id));
+
+CREATE POLICY "Admins can delete item groups" ON public.item_groups
   FOR DELETE USING (public.is_org_admin(organisation_id));
 
 -- Items: org-scoped, insert checks plan limit
@@ -403,6 +465,80 @@ BEGIN
   WHERE organisation_id = p_org_id;
 
   RETURN v_next;
+END;
+$$;
+
+-- Get next sequential ID for a given item name in an org
+CREATE OR REPLACE FUNCTION public.next_sequential_id(
+  p_org_id uuid,
+  p_name text
+)
+RETURNS int
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_next int;
+BEGIN
+  SELECT COALESCE(MAX(sequential_id), 0) + 1
+  INTO v_next
+  FROM public.items
+  WHERE organisation_id = p_org_id
+    AND lower(trim(name)) = lower(trim(p_name));
+
+  RETURN v_next;
+END;
+$$;
+
+-- Batch create items with auto sequential IDs
+CREATE OR REPLACE FUNCTION public.create_items_batch(
+  p_org_id uuid,
+  p_name text,
+  p_quantity int,
+  p_label_color text DEFAULT NULL,
+  p_item_group_id uuid DEFAULT NULL,
+  p_notes text DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_next_seq int;
+  v_next_item_num int;
+  v_created_ids jsonb := '[]'::jsonb;
+  v_id uuid;
+  i int;
+BEGIN
+  IF NOT public.is_org_member(p_org_id) THEN
+    RAISE EXCEPTION 'Access denied';
+  END IF;
+
+  IF p_quantity < 1 OR p_quantity > 100 THEN
+    RAISE EXCEPTION 'Quantity must be between 1 and 100';
+  END IF;
+
+  v_next_seq := public.next_sequential_id(p_org_id, p_name);
+
+  SELECT COALESCE(MAX(item_number), 0) + 1
+  INTO v_next_item_num
+  FROM public.items
+  WHERE organisation_id = p_org_id;
+
+  FOR i IN 0..(p_quantity - 1) LOOP
+    INSERT INTO public.items (
+      organisation_id, name, item_number, sequential_id,
+      label_color, item_group_id, notes
+    ) VALUES (
+      p_org_id, p_name, v_next_item_num + i, v_next_seq + i,
+      p_label_color, p_item_group_id, p_notes
+    )
+    RETURNING id INTO v_id;
+
+    v_created_ids := v_created_ids || to_jsonb(v_id::text);
+  END LOOP;
+
+  RETURN v_created_ids;
 END;
 $$;
 

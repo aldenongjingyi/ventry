@@ -22,6 +22,18 @@ class ActivityProvider {
         .limit(limit);
   }
 
+  /// Fetches user_id -> full_name map for an org's members.
+  Future<Map<String, String>> getMemberNames(String orgId) async {
+    final data = await _client
+        .from('org_memberships')
+        .select('user_id, full_name')
+        .eq('organisation_id', orgId);
+    return {
+      for (final row in data)
+        row['user_id'] as String: row['full_name'] as String,
+    };
+  }
+
   RealtimeChannel subscribeToChanges(String orgId, void Function(dynamic) callback) {
     return _client
         .channel('activity_$orgId')

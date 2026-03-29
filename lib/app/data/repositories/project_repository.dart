@@ -24,11 +24,23 @@ class ProjectRepository {
     return all.where((p) => p.status == status).toList();
   }
 
-  Future<ProjectModel> create(String orgId, String name, String? location) async {
+  Future<ProjectModel> create(
+    String orgId,
+    String name, {
+    String? location,
+    String? icon,
+    String? description,
+    DateTime? startDate,
+    DateTime? dueDate,
+  }) async {
     final data = await _provider.create({
       'organisation_id': orgId,
       'name': name,
-      'location': location,
+      if (location != null) 'location': location,
+      if (icon != null) 'icon': icon,
+      if (description != null) 'description': description,
+      if (startDate != null) 'start_date': startDate.toIso8601String().split('T').first,
+      if (dueDate != null) 'due_date': dueDate.toIso8601String().split('T').first,
     });
     return ProjectModel.fromJson(data);
   }

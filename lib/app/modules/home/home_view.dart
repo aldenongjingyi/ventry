@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/add_item_sheet.dart';
+import '../../widgets/add_project_sheet.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/pressable.dart';
 import '../../widgets/shimmer_list.dart';
 import '../../widgets/error_state.dart';
 import '../../data/services/supabase_service.dart';
-import '../../routes/app_routes.dart';
 import '../shell/shell_controller.dart';
 import '../items/items_controller.dart';
-import '../projects/projects_controller.dart';
 import '../account/account_controller.dart';
-import '../scan/scan_view.dart';
-import '../scan/scan_binding.dart';
 import 'home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -24,51 +24,73 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: AppColors.canvas,
       body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const ShimmerList();
+          }
+          if (controller.hasError.value) {
+            return ErrorState(
+              message: "Couldn't load dashboard",
+              onRetry: controller.loadHome,
+            );
+          }
+          return RefreshIndicator(
+            onRefresh: controller.loadHome,
+            color: AppColors.acc,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                const SizedBox(height: 14),
+                Text(
+                  controller.greeting,
+                  style: AppTextStyles.screenTitle,
+                ),
+                const SizedBox(height: 16),
+                _buildMissingAlert(),
+                _buildOrgStats(context),
+                _buildQuickActions(context),
+                _buildRecentActivity(),
+                if (!controller.hasContent)
+                  _buildChecklist(),
+                const SizedBox(height: 100),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildChecklist() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GlassCard(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              child: Obx(() => Text(
-                    controller.greeting,
-                    style: AppTextStyles.screenTitle,
-                  )),
+            Text('Welcome to Ventry', style: AppTextStyles.cardTitle),
+            const SizedBox(height: 6),
+            Text(
+              'Track your equipment across projects and storage with QR codes.',
+              style: AppTextStyles.bodySecondary,
             ),
-            const SizedBox(height: 16),
-            // Content
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const ShimmerList();
-                }
-                if (controller.hasError.value) {
-                  return ErrorState(
-                    message: "Couldn't load dashboard",
-                    onRetry: controller.loadHome,
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: controller.loadHome,
-                  color: AppColors.acc,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      // Show checklist if no content and not all done
-                      if (!controller.hasContent && !controller.allChecklistDone)
-                        _buildChecklist()
-                      else ...[
-                        _buildMissingAlert(),
-                        _buildOrgStats(),
-                        _buildQuickActions(context),
-                        _buildActiveProjects(),
-                        _buildRecentActivity(),
-                        const SizedBox(height: 100),
-                      ],
-                    ],
-                  ),
-                );
-              }),
+            const SizedBox(height: 18),
+            _ExplainerStep(
+              icon: Icons.create_new_folder_rounded,
+              title: 'Create a project',
+              subtitle: 'Group items by job site or location',
+            ),
+            _ExplainerStep(
+              icon: Icons.inventory_2_rounded,
+              title: 'Add your items',
+              subtitle: 'Register equipment and print QR labels',
+            ),
+            _ExplainerStep(
+              icon: Icons.qr_code_scanner_rounded,
+              title: 'Scan to move',
+              subtitle: 'Check items in and out with a quick scan',
+              isLast: true,
             ),
           ],
         ),
@@ -76,105 +98,260 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildChecklist() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 8),
-        Text('Get started with Ventry', style: AppTextStyles.cardTitle),
-        const SizedBox(height: 16),
-        Obx(() => _ChecklistRow(
-              title: 'Create your first project',
-              isDone: controller.checklistProject.value,
-              onTap: () {
-                Get.find<ShellController>().changePage(1);
-              },
-            )),
-        const SizedBox(height: 8),
-        Obx(() => _ChecklistRow(
-              title: 'Add your first item',
-              isDone: controller.checklistItem.value,
-              onTap: () {
-                Get.find<ShellController>().changePage(2);
-              },
-            )),
-        const SizedBox(height: 8),
-        Obx(() => _ChecklistRow(
-              title: 'Invite your team',
-              isDone: controller.checklistInvite.value,
-              onTap: () {
-                Get.toNamed(AppRoutes.members);
-              },
-            )),
-        const SizedBox(height: 100),
-      ],
-    );
-  }
-
-  Widget _buildOrgStats() {
+  Widget _buildOrgStats(BuildContext context) {
     return Obx(() {
-      if (controller.totalItems == 0 && controller.activeProjectCount == 0) {
-        return const SizedBox.shrink();
-      }
+      final active = controller.activeProjects;
+      final hasStats = controller.totalItems > 0 || controller.activeProjectCount > 0;
       return Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: GlassCard(
           padding: const EdgeInsets.all(14),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Org header
+              // Org header — always shown
               const _OrgPill(),
+              // Stats row — only when there's data
+              if (hasStats) ...[
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        label: 'Total Items',
+                        count: controller.totalItems,
+                        icon: Icons.inventory_2_outlined,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _StatCard(
+                        label: 'In Storage',
+                        count: controller.inStorageCount,
+                        icon: Icons.warehouse_outlined,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _StatCard(
+                        label: 'Deployed',
+                        count: controller.inProjectCount,
+                        icon: Icons.rocket_launch_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              // Active projects section
               const SizedBox(height: 14),
-              // Stats grid
+              const Divider(color: AppColors.border1, height: 1),
+              const SizedBox(height: 14),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Total Items',
-                      count: controller.totalItems,
-                      icon: Icons.inventory_2_outlined,
-                      onTap: () => Get.find<ShellController>().changePage(2),
+                  Text('ACTIVE PROJECTS',
+                      style: AppTextStyles.sectionLabel),
+                  if (active.length > 2)
+                    GestureDetector(
+                      onTap: () => controller.projectsExpanded.toggle(),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            controller.projectsExpanded.value
+                                ? 'Show less'
+                                : 'See all (${active.length})',
+                            style: AppTextStyles.caption
+                                .copyWith(color: AppColors.accText),
+                          ),
+                          const SizedBox(width: 2),
+                          AnimatedRotation(
+                            turns: controller.projectsExpanded.value
+                                ? 0.5
+                                : 0.0,
+                            duration: const Duration(milliseconds: 250),
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: AppColors.accText,
+                              size: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _StatCard(
-                      label: 'In Storage',
-                      count: controller.inStorageCount,
-                      icon: Icons.warehouse_outlined,
-                      onTap: () {
-                        Get.find<ItemsController>().setFilterStatus('in_storage');
-                        Get.find<ShellController>().changePage(2);
-                      },
-                    ),
-                  ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Deployed',
-                      count: controller.inProjectCount,
-                      icon: Icons.rocket_launch_outlined,
-                      onTap: () {
-                        Get.find<ItemsController>().setFilterStatus('in_project');
-                        Get.find<ShellController>().changePage(2);
-                      },
+              if (active.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Pressable(
+                    onTap: () => _showAddProjectSheet(context),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface1,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.border2,
+                          width: 0.5,
+                          strokeAlign: BorderSide.strokeAlignInside,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.accBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.create_new_folder_rounded,
+                              color: AppColors.acc,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No active projects',
+                            style: AppTextStyles.itemName.copyWith(
+                              color: AppColors.t2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tap to create your first project',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.t4,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _StatCard(
-                      label: 'Active Projects',
-                      count: controller.activeProjectCount,
-                      icon: Icons.folder_outlined,
-                      onTap: () => Get.find<ShellController>().changePage(1),
+                ),
+              if (active.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    children: (controller.projectsExpanded.value
+                            ? active
+                            : active.take(2).toList())
+                        .map((project) {
+                  final checkIn =
+                      controller.projectCheckInPercent(project.id);
+                  final pct = (checkIn * 100).round();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Pressable(
+                      onTap: () =>
+                          Get.toNamed('/projects/${project.id}'),
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface1,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.border1,
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title + item count pill
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    project.name,
+                                    style: AppTextStyles.itemName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accBg,
+                                    borderRadius:
+                                        BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    '${project.itemCount} ITEMS',
+                                    style:
+                                        AppTextStyles.micro.copyWith(
+                                      color: AppColors.accText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Location
+                            if (project.location != null) ...[
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  const Icon(
+                                      Icons.location_on_outlined,
+                                      color: AppColors.t4,
+                                      size: 14),
+                                  const SizedBox(width: 4),
+                                  Text(project.location!,
+                                      style: AppTextStyles.caption),
+                                ],
+                              ),
+                            ],
+                            // Check-in progress
+                            if (project.itemCount > 0) ...[
+                              const SizedBox(height: 14),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('CHECK-IN STATUS',
+                                      style:
+                                          AppTextStyles.sectionLabel),
+                                  Text('$pct%',
+                                      style: AppTextStyles.caption
+                                          .copyWith(
+                                        color: AppColors.t2,
+                                        fontWeight: FontWeight.w600,
+                                      )),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: checkIn,
+                                  minHeight: 6,
+                                  backgroundColor:
+                                      AppColors.surface3,
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<
+                                          Color>(AppColors.acc),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
+                  );
+                }).toList(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ],
           ),
         ),
@@ -187,10 +364,10 @@ class HomeView extends GetView<HomeController> {
       if (controller.missingCount == 0) return const SizedBox.shrink();
       return Padding(
         padding: const EdgeInsets.only(bottom: 16),
-        child: GestureDetector(
+        child: Pressable(
           onTap: () {
             Get.find<ItemsController>().setFilterStatus('missing');
-            Get.find<ShellController>().changePage(2);
+            Get.find<ShellController>().changePage(1);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -257,17 +434,6 @@ class HomeView extends GetView<HomeController> {
           children: [
             Expanded(
               child: _QuickAction(
-                icon: Icons.qr_code_scanner_rounded,
-                label: 'Scan QR',
-                onTap: () => Get.to(
-                  () => const ScanView(),
-                  fullscreenDialog: true,
-                  binding: ScanBinding(),
-                ),
-              ),
-            ),
-            Expanded(
-              child: _QuickAction(
                 icon: Icons.add_box_rounded,
                 label: 'Add Item',
                 onTap: () => _showAddItemSheet(context),
@@ -289,7 +455,7 @@ class HomeView extends GetView<HomeController> {
                   if (!itemsCtrl.isSelecting.value) {
                     itemsCtrl.toggleSelecting();
                   }
-                  Get.find<ShellController>().changePage(2);
+                  Get.find<ShellController>().changePage(1);
                 },
               ),
             ),
@@ -297,134 +463,6 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
     );
-  }
-
-  Widget _buildActiveProjects() {
-    return Obx(() {
-      final active = controller.activeProjects;
-      if (active.isEmpty) return const SizedBox.shrink();
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'ACTIVE PROJECTS',
-                  style: AppTextStyles.sectionLabel,
-                ),
-                GestureDetector(
-                  onTap: () => Get.find<ShellController>().changePage(1),
-                  child: Text(
-                    'See all',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.accText,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...active.map((project) {
-              final checkIn = controller.projectCheckInPercent(project.id);
-              final pct = (checkIn * 100).round();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: GlassCard(
-                  padding: const EdgeInsets.all(16),
-                  child: GestureDetector(
-                    onTap: () => Get.toNamed('/projects/${project.id}'),
-                    behavior: HitTestBehavior.opaque,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title row with item count pill
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                project.name,
-                                style: AppTextStyles.itemName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: AppColors.accBg,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text(
-                                '${project.itemCount} ITEMS',
-                                style: AppTextStyles.micro.copyWith(
-                                  color: AppColors.accText,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Location
-                        if (project.location != null) ...[
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on_outlined,
-                                  color: AppColors.t4, size: 14),
-                              const SizedBox(width: 4),
-                              Text(
-                                project.location!,
-                                style: AppTextStyles.caption,
-                              ),
-                            ],
-                          ),
-                        ],
-                        // Check-in progress
-                        if (project.itemCount > 0) ...[
-                          const SizedBox(height: 14),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'CHECK-IN STATUS',
-                                style: AppTextStyles.sectionLabel,
-                              ),
-                              Text(
-                                '$pct%',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.t2,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: checkIn,
-                              minHeight: 6,
-                              backgroundColor: AppColors.surface3,
-                              valueColor:
-                                  const AlwaysStoppedAnimation<Color>(AppColors.acc),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ],
-        ),
-      );
-    });
   }
 
   Widget _buildRecentActivity() {
@@ -444,6 +482,7 @@ class HomeView extends GetView<HomeController> {
                 dotColor = AppColors.am;
               case 'move_to_project':
               case 'return_to_storage':
+              case 'relocate':
                 dotColor = AppColors.em;
               default:
                 dotColor = AppColors.sl;
@@ -514,198 +553,11 @@ class HomeView extends GetView<HomeController> {
   }
 
   void _showAddItemSheet(BuildContext context) {
-    final nameCtrl = TextEditingController();
-    final notesCtrl = TextEditingController();
-    final isSubmitting = false.obs;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.fromLTRB(
-            24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-        decoration: const BoxDecoration(
-          color: AppColors.surface1,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border2,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text('Add Item', style: AppTextStyles.cardTitle),
-            const SizedBox(height: 8),
-            Text('Create a new item to track',
-                style: AppTextStyles.bodySecondary),
-            const SizedBox(height: 24),
-            _buildTextField(nameCtrl, 'Item Name', 'e.g. Drill, Safety Harness',
-                autofocus: true),
-            const SizedBox(height: 16),
-            _buildTextField(notesCtrl, 'Notes (optional)', null, maxLines: 2),
-            const SizedBox(height: 24),
-            Obx(() => _buildSubmitButton(
-                  label: 'Create Item',
-                  isSubmitting: isSubmitting.value,
-                  onTap: () async {
-                    final name = nameCtrl.text.trim();
-                    if (name.isEmpty) return;
-                    isSubmitting.value = true;
-                    await Get.find<ItemsController>().createItem(
-                      name,
-                      notesCtrl.text.trim().isEmpty
-                          ? null
-                          : notesCtrl.text.trim(),
-                    );
-                    isSubmitting.value = false;
-                    controller.loadHome();
-                    if (ctx.mounted) Navigator.of(ctx).pop();
-                  },
-                )),
-          ],
-        ),
-      ),
-    );
+    showAddItemSheet(context, onCreated: () => controller.loadHome());
   }
 
   void _showAddProjectSheet(BuildContext context) {
-    final nameCtrl = TextEditingController();
-    final locationCtrl = TextEditingController();
-    final isSubmitting = false.obs;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.fromLTRB(
-            24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-        decoration: const BoxDecoration(
-          color: AppColors.surface1,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border2,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text('New Project', style: AppTextStyles.cardTitle),
-            const SizedBox(height: 8),
-            Text('Create a project to organize items',
-                style: AppTextStyles.bodySecondary),
-            const SizedBox(height: 24),
-            _buildTextField(
-                nameCtrl, 'Project Name', 'e.g. Building A Renovation',
-                autofocus: true),
-            const SizedBox(height: 16),
-            _buildTextField(
-                locationCtrl, 'Location (optional)', 'e.g. 123 Main St'),
-            const SizedBox(height: 24),
-            Obx(() => _buildSubmitButton(
-                  label: 'Create Project',
-                  isSubmitting: isSubmitting.value,
-                  onTap: () async {
-                    final name = nameCtrl.text.trim();
-                    if (name.isEmpty) return;
-                    isSubmitting.value = true;
-                    await Get.find<ProjectsController>().createProject(
-                      name,
-                      locationCtrl.text.trim().isEmpty
-                          ? null
-                          : locationCtrl.text.trim(),
-                    );
-                    isSubmitting.value = false;
-                    controller.loadHome();
-                    if (ctx.mounted) Navigator.of(ctx).pop();
-                  },
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController textController,
-    String label,
-    String? hint, {
-    bool autofocus = false,
-    int maxLines = 1,
-  }) {
-    return TextField(
-      controller: textController,
-      style: AppTextStyles.body,
-      autofocus: autofocus,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        labelStyle: AppTextStyles.caption,
-        hintStyle: AppTextStyles.caption.copyWith(color: AppColors.t5),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.border2, width: 0.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.acc, width: 1),
-        ),
-        filled: true,
-        fillColor: AppColors.surface2,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton({
-    required String label,
-    required bool isSubmitting,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: AppColors.acc,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: isSubmitting ? null : onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Center(
-            child: isSubmitting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Text(label, style: AppTextStyles.button),
-          ),
-        ),
-      ),
-    );
+    showAddProjectSheet(context, onCreated: () => controller.loadHome());
   }
 }
 
@@ -724,9 +576,8 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -759,21 +610,17 @@ class _StatCard extends StatelessWidget {
   final String label;
   final int count;
   final IconData icon;
-  final VoidCallback? onTap;
   const _StatCard({
     required this.label,
     required this.count,
     required this.icon,
-    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     const fg = AppColors.t3;
     const bg = AppColors.surface3;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surface1,
@@ -810,7 +657,7 @@ class _StatCard extends StatelessWidget {
           ),
         ],
       ),
-    ));
+    );
   }
 }
 
@@ -850,14 +697,43 @@ class _OrgPill extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Text(
-              orgName,
-              style: AppTextStyles.itemName.copyWith(
-                color: AppColors.t1,
+            Expanded(
+              child: Text(
+                orgName,
+                style: AppTextStyles.itemName.copyWith(
+                  color: AppColors.t1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: SupabaseService.to.isPro
+                    ? AppColors.accBg
+                    : AppColors.surface3,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: SupabaseService.to.isPro
+                      ? AppColors.accBorder
+                      : AppColors.border2,
+                  width: 0.5,
+                ),
+              ),
+              child: Text(
+                SupabaseService.to.activePlan.value.toUpperCase(),
+                style: AppTextStyles.micro.copyWith(
+                  color: SupabaseService.to.isPro
+                      ? AppColors.accText
+                      : AppColors.t4,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             if (tappable) ...[
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               const Icon(Icons.unfold_more_rounded,
                   color: AppColors.t4, size: 16),
             ],
@@ -870,48 +746,58 @@ class _OrgPill extends StatelessWidget {
 
 // ─── Checklist row ────────────────────────────────────────────────────
 
-class _ChecklistRow extends StatelessWidget {
+class _ExplainerStep extends StatelessWidget {
+  final IconData icon;
   final String title;
-  final bool isDone;
-  final VoidCallback onTap;
+  final String subtitle;
+  final bool isLast;
 
-  const _ChecklistRow({
+  const _ExplainerStep({
+    required this.icon,
     required this.title,
-    required this.isDone,
-    required this.onTap,
+    required this.subtitle,
+    this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      child: GestureDetector(
-        onTap: isDone ? null : onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Row(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
           children: [
-            Icon(
-              isDone
-                  ? Icons.check_circle_rounded
-                  : Icons.radio_button_unchecked,
-              color: isDone ? AppColors.em : AppColors.t4,
-              size: 22,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTextStyles.body.copyWith(
-                  color: isDone ? AppColors.t4 : AppColors.t1,
-                  decoration: isDone ? TextDecoration.lineThrough : null,
-                ),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.surface3,
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: Icon(icon, color: AppColors.t3, size: 16),
             ),
-            if (!isDone)
-              const Icon(Icons.chevron_right, color: AppColors.t4, size: 20),
+            if (!isLast)
+              Container(
+                width: 1,
+                height: 28,
+                color: AppColors.border2,
+              ),
           ],
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyles.itemName.copyWith(color: AppColors.t2)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: AppTextStyles.caption),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

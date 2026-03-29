@@ -83,6 +83,22 @@ class ActivityLogModel {
 
   String get displayAction {
     switch (action) {
+      case 'relocate':
+        // Use to_status to determine what happened
+        switch (toStatus) {
+          case 'in_project':
+            return 'moved to project';
+          case 'storage':
+            return 'returned to storage';
+          case 'missing':
+            return 'marked as missing';
+          case 'under_repair':
+            return 'sent for repair';
+          case 'retired':
+            return 'retired';
+          default:
+            return 'relocated';
+        }
       case 'move_to_project':
         return 'moved to project';
       case 'return_to_storage':
@@ -97,6 +113,8 @@ class ActivityLogModel {
         return 'added';
       case 'update':
         return 'updated';
+      case 'complete_project':
+        return 'completed project';
       default:
         return action;
     }
